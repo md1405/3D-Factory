@@ -7,4 +7,7 @@ export default class Factory extends THREE.Group {
     
     this.name = 'Factory';
   }
+  addMachine(machine) {
+    this.add(machine);    
+  }
 }

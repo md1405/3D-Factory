@@ -9,7 +9,7 @@ export default class Light extends Group {
     this.customProperties = new Map();  
     this.disposed = false;
     
-    this.light1.position.set(8, 10, 8);
+    this.light1.position.set(5, 8, 8);
     
     this.light1.target = new Object3D();
     this.light1.target.position.set(0, 0, 0);
@@ -27,7 +27,7 @@ export default class Light extends Group {
     
     this.add(this.light1);
 
-    this.light2 = new AmbientLight(color, intensity=1);
+    this.light2 = new AmbientLight(color, intensity=2);
     this.add(this.light2);
   }
   

@@ -18,6 +18,7 @@ import Light from '../objects/Lights';
 import Canveyor from '../objects/Conveyor';
 import FactoryHall from '../objects/FactoryHall';
 import Floor from '../objects/Floor';
+import LoadingArea from '../objects/LoadingArea';
 import Tank from '../objects/Tank';
  
 
@@ -68,13 +69,16 @@ export default class App {
         this.factory.add(conveyor);
         this.scene.add(this.factory);
 
+        this.loadingArea = new LoadingArea();
+        this.scene.add(this.loadingArea);
+
         //helpers
         const makeAxisGrid = (node, label, units = 10) => {
             const helper = new AxisGridHelper(node, units);
             this.gui.add(helper, 'visible').name(label);
         }
         makeAxisGrid(this.scene, 'scene', 50);
-        makeAxisGrid(this.factory, 'factory', 20);
+        makeAxisGrid(this.factory, 'factory', 22);
 
         //resize
         this.resizeHandler = () => {

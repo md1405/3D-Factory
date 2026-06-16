@@ -11,12 +11,13 @@ export default class Camera {
       0.1,
       100
     )
-    this.instance.position.set(0, 5, 12);
+    this.instance.position.set(6, 5, 10);
     this.instance.lookAt(0, 0, 0);
     
     this.controls = new OrbitControls(this.instance, canvas);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.05;
+    this.controls.target.set(0, 2, 0);
   }
   
   resize() {
