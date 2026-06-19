@@ -11,7 +11,7 @@ export default class Conveyor extends THREE.Group {
       thickness: 0.3,
       edgeSize: 0.3,
       legHeight: 2,
-      legRadius: 0.2,
+      legRadius: 0.1,
       legSpacingZ: 1.5,
       tubeRadius: 0.08,
       baseSpacing: 2.5,
@@ -124,7 +124,7 @@ export default class Conveyor extends THREE.Group {
     const { legHeight, legRadius, legSpacingZ, tubeRadius } = this.config
     
     // Front base (positive Z)
-    const legGeo = new THREE.CylinderGeometry(legRadius, legRadius * 1.25, legHeight, 12)
+    const legGeo = new THREE.CylinderGeometry(legRadius, legRadius , legHeight, 12)
     const frontLeg = new THREE.Mesh(legGeo, this.metalMaterial)
     frontLeg.castShadow = true
     frontLeg.receiveShadow = true
@@ -223,7 +223,6 @@ export default class Conveyor extends THREE.Group {
     
     supportPositions.forEach(pos => {
       const support = new THREE.Mesh(supportGeo, this.rubberMaterial)
-      // موقعیت: از سطح نوار نقاله (y=2) تا ارتفاع holderHeight
       support.position.set(pos.x, 2 + supportHeight/2, pos.z)
       support.castShadow = true
       group.add(support)
@@ -236,7 +235,6 @@ export default class Conveyor extends THREE.Group {
   createHolderSystem() {
     const { baseSpacing, centerZ, xRange } = this.config
     
-    // قرار دادن هولدرها در طول X
     for (let x = xRange.start; x <= xRange.end; x += baseSpacing) {
       const holderSet = this.createHolderSet()
       holderSet.position.set(x, 0, centerZ)
@@ -247,7 +245,6 @@ export default class Conveyor extends THREE.Group {
   // Method to change settings
   updateConfig(newConfig) {
     Object.assign(this.config, newConfig)
-    // حذف اجزای قدیمی و بازسازی
     while(this.children.length > 0) {
       this.remove(this.children[0])
     }

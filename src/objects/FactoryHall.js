@@ -92,6 +92,9 @@ export default class Light extends THREE.Group {
     wallsGroup.add(frontWall, backWall, leftWall, rightWall);
     wallsGroup.name = 'Walls';
 
+    //add to group
+    this.add(wallsGroup);
+
     // Roof 
     const roofMaterial = new THREE.MeshStandardMaterial({
         color: 0x8b4513,
@@ -141,8 +144,7 @@ export default class Light extends THREE.Group {
 
     this.add(roof);
 
-    //add to group
-    this.add(wallsGroup);
+
 
     // columns
     const columnMaterial = new THREE.MeshStandardMaterial({
@@ -183,5 +185,6 @@ export default class Light extends THREE.Group {
     this.add(floor);
 
     this.name = 'FactoryHall';
+
   }
 }

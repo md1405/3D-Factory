@@ -19,7 +19,9 @@ import Canveyor from '../objects/Conveyor';
 import FactoryHall from '../objects/FactoryHall';
 import Floor from '../objects/Floor';
 import LoadingArea from '../objects/LoadingArea';
+import SectionalDoor from '../objects/SectionalDoor';
 import Tank from '../objects/Tank';
+import WalkWay from '../objects/WalkWay';
  
 
 export default class App {
@@ -48,25 +50,34 @@ export default class App {
 
         //tank1
         const tank1 = new Tank();
-        tank1.position.set(-4, 2.5, 0);
+        tank1.position.set(-4, 2.5, 6);
         tank1.name = "MilkTank01";
 
         //tank2
         const tank2 = new Tank();
-        tank2.position.set(4, 2.5, 0);
+        tank2.position.set(-4, 2.5, 0);
         tank2.name = "MilkTank02";
 
+        const conveyor1 = new Canveyor();
+        conveyor1.position.set(-2, 0, -3);
+        conveyor1.rotation.y = Math.PI / 2;
+        conveyor1.scale.set(0.7, 0.7, 0.7)
+        conveyor1.name = "conveyor01";
+
         //factory
-        const conveyor = new Canveyor();
         const floor = new Floor();
         const hall = new FactoryHall();
+        const door = new SectionalDoor;
+        const walkWay = new WalkWay;
 
         this.factory = new Factory();
         this.factory.add(floor);
         this.factory.add(hall);
         this.factory.add(tank1);
         this.factory.add(tank2);
-        this.factory.add(conveyor);
+        this.factory.add(conveyor1);
+        this.factory.add(door);
+        this.factory.add(walkWay);
         this.scene.add(this.factory);
 
         this.loadingArea = new LoadingArea();

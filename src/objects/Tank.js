@@ -3,8 +3,8 @@ import * as THREE from "three";
 export default class Tank extends THREE.Mesh {
   constructor() {
      const tankGeometry = new THREE.CylinderGeometry(
-      2,
-      2, 
+      1.5,
+      1.5, 
       5, 
       32
     );
