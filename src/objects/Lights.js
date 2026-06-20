@@ -27,7 +27,7 @@ export default class Light extends Group {
     
     this.add(this.light1);
 
-    this.light2 = new AmbientLight(color, intensity=2);
+    this.light2 = new AmbientLight(color, intensity=1);
     this.add(this.light2);
   }
   
