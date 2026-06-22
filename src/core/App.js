@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import GUI from 'lil-gui'
-import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
+// import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 
@@ -20,14 +20,14 @@ import Factory from '../factory/Factory';
 
 //objects
 import Light from '../objects/Lights';
-import Canveyor from '../objects/Conveyor';
+import  Bottle  from '../objects/Bottle.js';
+import  Conveyor  from '../objects/Conveyor.js';
 import FactoryHall from '../objects/FactoryHall';
-import Floor from '../objects/Floor';
 import LoadingArea from '../objects/LoadingArea';
-// import Pipe from '../objects/Pipe';
 import SectionalDoor from '../objects/SectionalDoor';
 import Tank from '../objects/Tank';
 import WalkWay from '../objects/WalkWay';
+import Pipe from '../objects/Pipe.js';
  
 
 export default class App {
@@ -102,79 +102,59 @@ export default class App {
 
         //renderer
         this.renderer = new Renderer(this.canvas, this.scene, this.camera);
-        this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
         //light       
         this.light = new Light(this.scene);
         this.scene.add(this.light);
 
         //tank1
-        const tank1 = new Tank();
-        tank1.position.set(-4, 2.5, 6);
-        tank1.name = "MilkTank01";
+        this.tank1 = new Tank();
+        this.tank1.position.set(-4, 3.5, 6);
+        this.tank1.name = "MilkTank01";
 
         //tank2
-        const tank2 = new Tank();
-        tank2.position.set(-4, 2.5, 0);
-        tank2.name = "MilkTank02";
-
-        const conveyor1 = new Canveyor();
-        conveyor1.position.set(-2, 0, -3);
-        conveyor1.rotation.y = Math.PI / 2;
-        conveyor1.scale.set(0.7, 0.7, 0.7)
-        conveyor1.name = "conveyor01";
-
-
-        // pipe
-        const start = new THREE.Vector3(tank1.position.x, 1.5, tank1.position.z);
-        const end = new THREE.Vector3(tank2.position.x, 1.5, tank2.position.z);
-        const direction = new THREE.Vector3().subVectors(end, start);
-        const length = direction.length();
-        const midPoint = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
-
-        const pipeGeometry = new THREE.CylinderGeometry(0.08, 0.08, length, 16);
-        const pipeMaterial = new THREE.MeshStandardMaterial({
-            color: 0xd8d8d8,
-            metalness: 1.0,
-            roughness: 0.15,
-        })
-        const pipe = new THREE.Mesh(pipeGeometry, pipeMaterial);
-        pipe.position.copy(midPoint);
-        
-        // Orientation pipe
-        pipe.quaternion.setFromUnitVectors(
-            new THREE.Vector3(0, 1, 0),
-            direction.normalize()
-        );
-    
-        pipe.castShadow = true;
-        pipe.receiveShadow = true;
-        pipe.name = "Pipe";
+        this.tank2 = new Tank();
+        this.tank2.position.set(-4, 3.5, 0);
+        this.tank2.name = "MilkTank02";
 
         // names
-        // tank1.TankLadder.name = "TankLadder01"
-        // tank2.TankLadder.name = "TankLadder02"
+        this.tank1.TankLadder.name = "TankLadder01"
+        this.tank2.TankLadder.name = "TankLadder02"
 
-        // tank1.TankPlatform.name = "TankPlatform01"
-        // tank2.TankPlatform.name = "TankPlatform02"
+        this.tank1.TankPlatform.name = "TankPlatform01"
+        this.tank2.TankPlatform.name = "TankPlatform02"
 
 
 
         //factory
-        const floor = new Floor();
-        const hall = new FactoryHall();
-        const door = new SectionalDoor();
-        const walkWay = new WalkWay();
+
+        this.pipe = new Pipe();
+        this.hall = new FactoryHall();
+        this.door = new SectionalDoor();
+        this.walkWay = new WalkWay();
+        this.conveyor = new Conveyor();
+
+        const bottles = [];
+
+        for(let i=0;i<5;i++){
+            this.bottle = new Bottle();
+
+            this.bottle.position.set(-4 + (i * 1.5), 2.5, 3 ) ;
+
+            this.conveyor.add(this.bottle);
+
+            bottles.push(this.bottle)
+        }
+
 
         this.factory = new Factory();
-        this.factory.add(floor);
-        this.factory.add(hall);
-        this.factory.add(tank1);
-        this.factory.add(tank2);
-        this.factory.add(pipe);
-        this.factory.add(conveyor1);
-        this.factory.add(door);
-        this.factory.add(walkWay);
+        this.factory.add(this.conveyor);
+        this.factory.add(this.hall);
+        this.factory.add(this.tank1);
+        this.factory.add(this.tank2);
+        this.factory.add(this.pipe);
+        this.factory.add(this.door);
+        this.factory.add(this.walkWay);
         this.scene.add(this.factory);
 
         this.loadingArea = new LoadingArea();
@@ -202,8 +182,26 @@ export default class App {
         this.time = new Time();    
         this.timer = new THREE.Timer();
         
+        const speed = 0.02
+        const min = -4
+        const max = 4
+
+        
         this.tickHandler = () => {
-            
+
+            bottles.forEach(bottle => {
+                bottle.position.x += speed;
+                
+                if(bottle.position.x > max) {
+                    bottle.position.x = min;
+                }
+            });
+            if (this.rollers) {
+                this.rollers.start.rotation.x += rollerRotationSpeed;
+            }
+
+
+      
 
             //contols
             this.camera.update();

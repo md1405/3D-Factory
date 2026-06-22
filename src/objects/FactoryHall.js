@@ -182,6 +182,7 @@ export default class Light extends THREE.Group {
     );
     floor.rotation.x = -Math.PI / 2;
     floor.position.set(0, 0.01, 0);
+    floor.receiveShadow = true;
     this.add(floor);
 
     this.name = 'FactoryHall';

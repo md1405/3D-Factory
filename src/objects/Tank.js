@@ -76,6 +76,7 @@ export default class LoadingArea extends THREE.Group {
       ladderGroup.add(rung);
     }
     ladderGroup.position.set(0, 1, 0);
+    this.add(ladderGroup);
 
 
     // platform
@@ -91,5 +92,8 @@ export default class LoadingArea extends THREE.Group {
 
     this.castShadow = true;
     this.receiveShadow = true;
+
+    this.TankLadder = ladderGroup;   
+    this.TankPlatform = platform;     
   }
 }

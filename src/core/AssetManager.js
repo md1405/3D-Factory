@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
+import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js';
+
 
 export default class AssetManager {
     constructor() {
@@ -18,8 +19,8 @@ export default class AssetManager {
         this.textureLoader = new THREE.TextureLoader(this.manager);
         this.gltfLoader = new GLTFLoader(this.manager);
         this.audioLoader = new THREE.AudioLoader(this.manager);
-        this.rgbeLoader = new RGBELoader(this.manager);
-        this.rgbeLoader.setDataType(THREE.HalfFloatType);
+        this.hdrLoader = new HDRLoader(this.manager);
+        this.hdrLoader.setDataType(THREE.HalfFloatType);
 
         // عناصر UI برای نمایش progress
         this.loadingScreen = document.getElementById('loading-screen');
@@ -87,7 +88,7 @@ export default class AssetManager {
         return new Promise((resolve, reject) => {
             this._pendingRejects.set(url, reject);
             
-            if (loader instanceof RGBELoader) {
+            if (loader instanceof HDRLoader) {
                 loader.load(
                     url,
                     (texture) => {
@@ -147,7 +148,7 @@ export default class AssetManager {
     }
 
     async loadHDR(name, url) {
-        const texture = await this._trackedLoad(this.rgbeLoader, url);
+        const texture = await this._trackedLoad(this.hdrLoader, url);
         texture.mapping = THREE.EquirectangularReflectionMapping;
         this.assets.hdr[name] = texture;
         console.log(`   ✅ HDR '${name}' ready.`);

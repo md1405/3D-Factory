@@ -17,7 +17,7 @@ export default class Camera {
     this.controls = new OrbitControls(this.instance, canvas);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.05;
-    this.controls.target.set(0, 2, 0);
+    // this.controls.target.set(0, 2, 0);
   }
   
   resize() {

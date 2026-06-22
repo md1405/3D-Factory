@@ -3,6 +3,9 @@ import * as THREE from 'three'
 export default class Renderer {
   constructor(canvas, scene, camera) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    this.renderer.shadowMap.enabled = true;
+    
     this.scene = scene;
     this.camera = camera;
     this.resize()

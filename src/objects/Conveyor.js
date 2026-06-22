@@ -4,253 +4,209 @@ export default class Conveyor extends THREE.Group {
   constructor() {
     super()
     
-    // Initial settings
+    // 1. پیکربندی ساده و متمرکز بر هدف روز چهارم
     this.config = {
-      totalWidth: 14,
-      totalDepth: 2,
-      thickness: 0.3,
-      edgeSize: 0.3,
-      legHeight: 2,
-      legRadius: 0.1,
-      legSpacingZ: 1.5,
-      tubeRadius: 0.08,
-      baseSpacing: 2.5,
-      centerZ: 3,
-      xRange: { start: -6, end: 6 },
-      grooveSpacing: 0.8,
-      holderHeight: 2.4, 
-      holderTubeRadius: 0.04,
-      holderSpacing: 0.4
+      length: 10,        // طول نوار نقاله
+      width: 1.2,        // عرض نوار
+      beltThickness: 0.1, // ضخامت تسمه
+      rollerRadius: 0.2,  // شعاع رولرها
+      legHeight: 1.5,     // ارتفاع پایه‌ها
+      yPosition: 2,       // ارتفاع کل نوار از زمین (با مخازن شما هماهنگ است)
+      zPosition: 3,       // موقعیت عمق (همان centerZ شما)
+      bottleGroupOffsetY: 0.5 // ارتفاع قرارگیری بطری روی تسمه
     }
-    
-    // materials
-    this.metalMaterial = new THREE.MeshStandardMaterial({
-      metalness: 1.0,
-      roughness: 0.2,
-      color: 0xccccdd,
-      emissive: 0x222233,
-      emissiveIntensity: 0.1
-    })
 
-    this.rubberMaterial = new THREE.MeshStandardMaterial({
-      metalness: 0.0,
-      roughness: 0.95,
-      color: 0x1a1a1a
-    })
-
-    this.grooveMaterial = new THREE.MeshStandardMaterial({
-      color: 0x0a0a0a,
-      roughness: 1.0
-    })
-
-    this.tubeMaterial = new THREE.MeshStandardMaterial({
-      metalness: 0.8,
-      roughness: 0.3,
-      color: 0x8899aa
-    })
-
-    this.holderMaterial = new THREE.MeshStandardMaterial({
-      metalness: 0.9,
-      roughness: 0.2,
-      color: 0x99aabb,
-      emissive: 0x112233,
-      emissiveIntensity: 0.05
-    })
-
-    // Making conveyor components
-    this.createConveyorPlate()
-    this.createGrooves()
-    this.createLegSystem()
-    this.createHolderSystem()
-  }
-
-  // Making the conveyor belt plate (metal sides + rubber center)
-  createConveyorPlate() {
-    const { totalWidth, totalDepth, thickness, edgeSize } = this.config
-    
-    // Front and rear metal sides
-    const edgeFBGeo = new THREE.BoxGeometry(totalWidth, thickness, edgeSize)
-    
-    const frontEdge = new THREE.Mesh(edgeFBGeo, this.metalMaterial)
-    frontEdge.position.set(0, 2, 3 + totalDepth/2 - edgeSize/2)
-    
-    const backEdge = new THREE.Mesh(edgeFBGeo, this.metalMaterial)
-    backEdge.position.set(0, 2, 3 - totalDepth/2 + edgeSize/2)
-    
-    // Left and right metal sides
-    const edgeLRGeo = new THREE.BoxGeometry(edgeSize, thickness, totalDepth - edgeSize * 2)
-    
-    const leftEdge = new THREE.Mesh(edgeLRGeo, this.metalMaterial)
-    leftEdge.position.set(-totalWidth/2 + edgeSize/2, 2, 3)
-    
-    const rightEdge = new THREE.Mesh(edgeLRGeo, this.metalMaterial)
-    rightEdge.position.set(totalWidth/2 - edgeSize/2, 2, 3)
-    
-    // Middle part (rubber)
-    const centerGeo = new THREE.BoxGeometry(
-      totalWidth - edgeSize * 2,
-      thickness,
-      totalDepth - edgeSize * 2
-    )
-    const center = new THREE.Mesh(centerGeo, this.rubberMaterial)
-    center.position.set(0, 2, 3)
-    
-    // Conveyor plate group
-    const conveyorPlate = new THREE.Group()
-    conveyorPlate.add(frontEdge, backEdge, leftEdge, rightEdge, center)
-    conveyorPlate.name = 'Conveyor-Plate'
-    this.add(conveyorPlate)
-    
-    this.conveyorPlate = conveyorPlate
-  }
-
-  // Create transverse grooves on the tire 
-  createGrooves() {
-    const { totalWidth, edgeSize, grooveSpacing } = this.config
-    
-    for (let x = -totalWidth/2 + edgeSize + 0.2; x <= totalWidth/2 - edgeSize - 0.2; x += grooveSpacing) {
-      const groove = new THREE.Mesh(
-        new THREE.BoxGeometry(0.02, 0.01, 1.3),
-        this.grooveMaterial
-      )
-      groove.position.set(x, 2.16, 3)
-      this.conveyorPlate.add(groove)
-    }
-  }
-
-  // Build a base set (two front and rear bases + connecting tubes)  
-  createBaseSet() {
-    const group = new THREE.Group()
-    const { legHeight, legRadius, legSpacingZ, tubeRadius } = this.config
-    
-    // Front base (positive Z)
-    const legGeo = new THREE.CylinderGeometry(legRadius, legRadius , legHeight, 12)
-    const frontLeg = new THREE.Mesh(legGeo, this.metalMaterial)
-    frontLeg.castShadow = true
-    frontLeg.receiveShadow = true
-    frontLeg.position.set(0, legHeight/2, legSpacingZ/2)
-    group.add(frontLeg)
-    
-    // Back leg (negative Z)
-    const backLeg = new THREE.Mesh(legGeo.clone(), this.metalMaterial)
-    backLeg.castShadow = true
-    backLeg.receiveShadow = true
-    backLeg.position.set(0, legHeight/2, -legSpacingZ/2)
-    group.add(backLeg)
-    
-    // Front to back connecting pipes (along Z)
-    const tubeGeo = new THREE.CylinderGeometry(tubeRadius, tubeRadius, legSpacingZ * 0.9, 8)
-    
-    // Three pipes at different heights
-    const heights = [0.3, 0.85]
-    heights.forEach(height => {
-      const tube = new THREE.Mesh(tubeGeo, this.metalMaterial)
-      tube.castShadow = true
-      tube.receiveShadow = true
-      tube.rotation.x = Math.PI / 2
-      tube.position.set(0, legHeight * height, 0)
-      group.add(tube)
-    })
-    
-    return group
-  }
-
-  // Create lateral longitudinal tubes (front and rear)
-  createLongitudinalTubes() {
-    const { legSpacingZ, centerZ, xRange, legHeight, baseSpacing } = this.config
-    const startX = xRange.start
-    const endX = xRange.end
-    
-    // Calculate the number of sections
-    const numSegments = Math.floor((endX - startX) / baseSpacing)
-    const segmentLength = (endX - startX) / numSegments * 0.85
-    
-    // Z positions for front and rear pipes
-    const zPositions = [
-      centerZ + legSpacingZ/2 + 0.1,
-      centerZ - legSpacingZ/2 - 0.1
-    ]
-    
-    // Different heights for pipes
-    const heights = [legHeight * 1.2, legHeight * 1.3]
-    
-    zPositions.forEach(zPos => {
-      heights.forEach(height => {
-        for (let i = 0; i < numSegments; i++) {
-          const xPos = startX + (i + 0.5) * segmentLength
-          const tubeGeo = new THREE.CylinderGeometry(0.05, 0.05, segmentLength, 6)
-          const tube = new THREE.Mesh(tubeGeo, this.metalMaterial)
-          tube.rotation.z = Math.PI / 2
-          tube.position.set(xPos, height, zPos)
-          tube.castShadow = true
-          this.add(tube)
-        }
+    // 2. متریال‌های حرفه‌ای ولی بهینه برای دمو
+    this.materials = {
+      belt: new THREE.MeshStandardMaterial({
+        color: 0x2c3e50,
+        roughness: 0.8,
+        metalness: 0.1
+      }),
+      roller: new THREE.MeshStandardMaterial({
+        color: 0xbdc3c7,
+        roughness: 0.3,
+        metalness: 0.9
+      }),
+      support: new THREE.MeshStandardMaterial({
+        color: 0x7f8c8d, // نارنجی ایمنی - برای تشخیص فوری پایه‌ها
+        roughness: 0.4,
+        metalness: 0.7
+      }),
+      detail: new THREE.MeshStandardMaterial({
+        color: 0x7f8c8d,
+        roughness: 0.4,
+        metalness: 0.7
       })
-    })
-  }
-
-  // Complete base system
-  createLegSystem() {
-    const { baseSpacing, centerZ, xRange } = this.config
-    
-    for (let x = xRange.start; x <= xRange.end; x += baseSpacing) {
-      const baseSet = this.createBaseSet()
-      baseSet.position.set(x, 0, centerZ)
-      this.add(baseSet)
     }
+
+    // 3. ساخت ساختار سلسله‌مراتبی
+    // Conveyor (this)
+    //   ├── Belt System
+    //   ├── Rollers (Start, End)
+    //   ├── Supports (Legs)
+    //   └── Bottles Group (برای انیمیشن)
     
-    this.createLongitudinalTubes()
+    this.beltSystem = new THREE.Group()
+    this.rollersGroup = new THREE.Group()
+    this.supportsGroup = new THREE.Group()
+    this.bottlesGroup = new THREE.Group() // مهم: گروه مجزا برای بطری‌ها
+    
+    this.add(this.beltSystem)
+    this.add(this.rollersGroup)
+    this.add(this.supportsGroup)
+    this.add(this.bottlesGroup)
+
+    // 4. فراخوانی متدهای ساخت
+    this.createBeltSystem()
+    this.createRollers()
+    this.createSupports()
   }
 
-  // Create a Holder collection
-  createHolderSet() {
-    const group = new THREE.Group()
-    const { 
-      legHeight, 
-      legSpacingZ, 
-      holderHeight
-    } = this.config
+  // --- ساخت تسمه و لبه‌ها ---
+  createBeltSystem() {
+    const { length, width, beltThickness, yPosition, zPosition } = this.config
     
-    // Vertical holder legs (connecting to conveyor)
-    const supportHeight = holderHeight - 1.8 
-    const supportGeo = new THREE.CylinderGeometry(0.04, 0.05, supportHeight, 8)
+    // تسمه اصلی (لاستیکی)
+    const beltGeo = new THREE.BoxGeometry(length, beltThickness, width)
+    const belt = new THREE.Mesh(beltGeo, this.materials.belt)
+    belt.position.set(0, yPosition, zPosition)
+    belt.castShadow = true
+    belt.receiveShadow = true
+    this.beltSystem.add(belt)
     
-    //Two vertical posts at the corners    
-    const supportPositions = [
-      { z: legSpacingZ/2 + 0.1, x: 0.15 },
-      { z: -legSpacingZ/2 - 0.1, x: 0.15 }
+    // لبه‌های فلزی کناری برای واقع‌گرایی
+    const edgeThickness = 0.05
+    const edgeHeight = 0.15
+    const edgeGeo = new THREE.BoxGeometry(length, edgeHeight, edgeThickness)
+    
+    const frontEdge = new THREE.Mesh(edgeGeo, this.materials.detail)
+    frontEdge.position.set(0, yPosition + 0.05, zPosition + width/2)
+    this.beltSystem.add(frontEdge)
+    
+    const backEdge = new THREE.Mesh(edgeGeo, this.materials.detail)
+    backEdge.position.set(0, yPosition + 0.05, zPosition - width/2)
+    this.beltSystem.add(backEdge)
+  }
+
+  // --- ساخت رولرهای ابتدا و انتها ---
+  createRollers() {
+    const { length, width, rollerRadius, yPosition, zPosition } = this.config
+    
+    const rollerGeo = new THREE.CylinderGeometry(rollerRadius, rollerRadius, width, 32)
+    
+    // رولر شروع (چپ)
+    this.rollerStart = new THREE.Mesh(rollerGeo, this.materials.roller)
+    this.rollerStart.position.set(-length/2 + rollerRadius, yPosition, zPosition)
+    this.rollerStart.rotation.z = Math.PI / 2 // افقی کردن استوانه
+    this.rollerStart.rotation.y = Math.PI / 2 // چرخاندناستوانه
+    this.rollerStart.castShadow = true
+    this.rollersGroup.add(this.rollerStart)
+    
+    // رولر پایان (راست)
+    this.rollerEnd = new THREE.Mesh(rollerGeo, this.materials.roller)
+    this.rollerEnd.position.set(length/2 - rollerRadius, yPosition, zPosition)
+    this.rollerEnd.rotation.z = Math.PI / 2 // افقی کردن استوانه
+    this.rollerEnd.rotation.y = Math.PI / 2 // چرخاندناستوانه
+    this.rollerEnd.castShadow = true
+    this.rollersGroup.add(this.rollerEnd)
+    
+    // دیسک‌های کناری رولرها برای جزئیات بیشتر
+    const diskGeo = new THREE.CylinderGeometry(rollerRadius + 0.05, rollerRadius + 0.05, 0.05, 16)
+    const positions = [
+      { x: -length/2 + rollerRadius, z: zPosition + width/2 },
+      { x: -length/2 + rollerRadius, z: zPosition - width/2 },
+      { x: length/2 - rollerRadius, z: zPosition + width/2 },
+      { x: length/2 - rollerRadius, z: zPosition - width/2 }
     ]
     
-    supportPositions.forEach(pos => {
-      const support = new THREE.Mesh(supportGeo, this.rubberMaterial)
-      support.position.set(pos.x, 2 + supportHeight/2, pos.z)
-      support.castShadow = true
-      group.add(support)
+    positions.forEach(pos => {
+      const disk = new THREE.Mesh(diskGeo, this.materials.detail)
+      disk.position.set(pos.x, yPosition, pos.z)
+      this.rollersGroup.add(disk)
     })
-  
-    return group
   }
 
-  // Complete Holder System
-  createHolderSystem() {
-    const { baseSpacing, centerZ, xRange } = this.config
+  // --- ساخت پایه‌ها (نسخه ساده‌شده و خوانا) ---
+  createSupports() {
+    const { length, width, legHeight, yPosition, zPosition } = this.config
     
-    for (let x = xRange.start; x <= xRange.end; x += baseSpacing) {
-      const holderSet = this.createHolderSet()
-      holderSet.position.set(x, 0, centerZ)
-      this.add(holderSet)
+    // ۴ جفت پایه در طول نوار
+    const supportCount = 4
+    const spacing = length / (supportCount + 1)
+    
+    for (let i = 1; i <= supportCount; i++) {
+      const xPos = -length/2 + i * spacing
+      const supportGroup = new THREE.Group()
+      
+      // دو پایه عمودی
+      const legGeo = new THREE.BoxGeometry(0.1, legHeight, 0.1)
+      
+      const frontLeg = new THREE.Mesh(legGeo, this.materials.support)
+      frontLeg.position.set(0, legHeight/2, width/2 - 0.1)
+      frontLeg.castShadow = true
+      frontLeg.receiveShadow = true
+      
+      const backLeg = new THREE.Mesh(legGeo, this.materials.support)
+      backLeg.position.set(0, legHeight/2, -width/2 + 0.1)
+      backLeg.castShadow = true
+      backLeg.receiveShadow = true
+      
+      supportGroup.add(frontLeg)
+      supportGroup.add(backLeg)
+      
+      // میله افقی اتصال
+      const barGeo = new THREE.BoxGeometry(0.08, 0.08, width - 0.2)
+      const bar = new THREE.Mesh(barGeo, this.materials.detail)
+      bar.position.set(0, legHeight * 0.15, 0) // نزدیک زمین
+      supportGroup.add(bar)
+      
+      // قرار دادن گروه پایه
+      supportGroup.position.set(xPos, yPosition - legHeight, zPosition)
+      this.supportsGroup.add(supportGroup);
+
+
     }
+
+    this.rotation.y = Math.PI / 2;
+
+    this.position.set(-1.5, -0.5, -3);
+
   }
 
-  // Method to change settings
-  updateConfig(newConfig) {
-    Object.assign(this.config, newConfig)
-    while(this.children.length > 0) {
-      this.remove(this.children[0])
-    }
-    this.createConveyorPlate()
-    this.createGrooves()
-    this.createLegSystem()
-    this.createHolderSystem()
-  }
+  // --- متدهای عمومی برای تعامل با دنیای خارج ---
+
+  // افزودن بطری به گروه بطری‌ها (برای انیمیشن)
+  // addBottle(bottle) {
+  //   this.bottlesGroup.add(bottle)
+  // }
+
+  // // دریافت همه بطری‌های در حال حرکت
+  // getBottles() {
+  //   return this.bottlesGroup.children
+  // }
+
+  // دریافت رولرها برای چرخش در انیمیشن
+  // getRollers() {
+  //   return {
+  //     start: this.rollerStart,
+  //     end: this.rollerEnd
+  //   }
+  // }
+
+  // // دریافت محدوده حرکت بطری‌ها
+  // getBottleMovementRange() {
+  //   const { length, rollerRadius, yPosition } = this.config
+  //   return {
+  //     minX: -length/2 + rollerRadius + 0.2,
+  //     maxX: length/2 - rollerRadius - 0.2,
+  //     y: yPosition + 0.5 // ارتفاع قرارگیری بطری
+  //   }
+  // }
+
+  // // متد به‌روزرسانی (اختیاری - اگر منطق خاصی برای خود کانوایر باشد)
+  // update(deltaTime) {
+  //   // می‌تواند شامل لرزش، صدا یا افکت‌های دیگر باشد
+  //   // فعلاً خالی است چون منطق انیمیشن در صحنه اصلی مدیریت می‌شود
+  // }
 }
