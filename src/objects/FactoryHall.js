@@ -144,8 +144,6 @@ export default class Light extends THREE.Group {
 
     this.add(roof);
 
-
-
     // columns
     const columnMaterial = new THREE.MeshStandardMaterial({
         color: 0xcccccc,
@@ -162,7 +160,7 @@ export default class Light extends THREE.Group {
 
     columnPositions.forEach(([x, z]) => {
         const column = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.2, 0.25, wallHeight+1.3, 8),
+            new THREE.CylinderGeometry(0.2, 0.25, wallHeight, 32),
             columnMaterial
         );
         column.position.set(x, wallHeight/2, z);

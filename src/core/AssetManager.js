@@ -22,7 +22,7 @@ export default class AssetManager {
         this.hdrLoader = new HDRLoader(this.manager);
         this.hdrLoader.setDataType(THREE.HalfFloatType);
 
-        // عناصر UI برای نمایش progress
+        // UI elements to display progress
         this.loadingScreen = document.getElementById('loading-screen');
         this.progressBar = document.getElementById('progress-bar');
         this.progressText = document.getElementById('progress-text');
@@ -59,24 +59,23 @@ export default class AssetManager {
         };
     }
 
-    // نمایش loading screen
+    // Show loading screen
     showLoadingScreen() {
         if (this.loadingScreen) {
             this.loadingScreen.classList.remove('hidden');
         }
     }
 
-    // مخفی کردن loading screen
+    // Hide loading screen
     hideLoadingScreen() {
         if (this.loadingScreen) {
-            // کمی تاخیر برای نمایش 100%
             setTimeout(() => {
                 this.loadingScreen.classList.add('hidden');
             }, 500);
         }
     }
 
-    // نمایش خطا
+    // Error display
     showError(message) {
         if (this.progressText) {
             this.progressText.textContent = message;

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-export default class LoadingArea extends THREE.Group {
+export default class Tank extends THREE.Group {
   constructor() {
     super();
     // body
@@ -24,7 +24,9 @@ export default class LoadingArea extends THREE.Group {
     this.add(top);
 
     // bottom
-    const bottomGeometry = new THREE.SphereGeometry(1, 64, 32, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2);
+    const bottomGeometry = new THREE.SphereGeometry(
+      1, 64, 32, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2
+    );
     const bottom = new THREE.Mesh(bottomGeometry, bodyMaterial);
     bottom.position.y = -2;
     bottom.castShadow = true;
@@ -78,7 +80,6 @@ export default class LoadingArea extends THREE.Group {
     ladderGroup.position.set(0, 1, 0);
     this.add(ladderGroup);
 
-
     // platform
     const platformGeometry = new THREE.BoxGeometry(1.6, 0.1, 0.6);
     const platform = new THREE.Mesh(platformGeometry, legMaterial);
@@ -94,6 +95,7 @@ export default class LoadingArea extends THREE.Group {
     this.receiveShadow = true;
 
     this.TankLadder = ladderGroup;   
-    this.TankPlatform = platform;     
+    this.TankPlatform = platform;   
+
   }
 }

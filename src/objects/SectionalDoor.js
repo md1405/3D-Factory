@@ -4,7 +4,6 @@ export default class SectionalDoor extends THREE.Group {
   constructor() {
     super()
     
-
     const floorDepth = 22;
     const wallThickness = 0.2;
     const doorWidth = 4;
