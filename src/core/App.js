@@ -12,7 +12,7 @@ import AssetManager from './AssetManager';
 import RaycasterManager from "./RaycasterManager";
 
 //utils
-import AxisGridHelper from '../utils/AxisGridHelper'
+// import AxisGridHelper from '../utils/AxisGridHelper'
 
 // ui
 import InfoPanel from "../ui/InfoPanel";
@@ -41,7 +41,7 @@ export default class App {
         }
 
         //gui
-        this.gui = new GUI();
+        // this.gui = new GUI();
         
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0xdfe5ea);
@@ -171,13 +171,13 @@ export default class App {
         this.loadingArea = new LoadingArea();
         this.scene.add(this.loadingArea);
 
-        // axisGridHelpers
-        const makeAxisGrid = (node, label, units = 10) => {
-            const helper = new AxisGridHelper(node, units);
-            this.gui.add(helper, 'visible').name(label);
-        }
-        makeAxisGrid(this.scene, 'scene', 50);
-        makeAxisGrid(this.factory, 'factory', 22);
+        // // axisGridHelpers
+        // const makeAxisGrid = (node, label, units = 10) => {
+        //     const helper = new AxisGridHelper(node, units);
+        //     this.gui.add(helper, 'visible').name(label);
+        // }
+        // makeAxisGrid(this.scene, 'scene', 50);
+        // makeAxisGrid(this.factory, 'factory', 22);
         
         // infopanel
 
