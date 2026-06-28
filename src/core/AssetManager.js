@@ -172,6 +172,9 @@ export default class AssetManager {
         
         console.log(`🌍 Environment map '${hdrName}' applied to scene.`);
     }
+    assetPath(path) {
+        return `${import.meta.env.BASE_URL}${path}`;
+    }    
 
     disposeModel(name) {
         const model = this.assets.models[name];

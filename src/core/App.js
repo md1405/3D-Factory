@@ -79,7 +79,9 @@ export default class App {
         try {
             await Promise.all([
                 //hdrs
-                this.assetManager.loadHDR('boiler_room', '/hdr/boiler_room.hdr'),
+                this.assetManager.loadHDR('boiler_room', 
+                    this.assetManager.assetPath('hdr/boiler_room.hdr')
+                ),
 
             ]);
 
