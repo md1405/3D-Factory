@@ -292,7 +292,7 @@ export default class App {
             this.assetManager.hideLoadingScreen();
         }
         
-        // مخفی کردن info hint بعد از 5 ثانیه
+        // Hide info hint after 5 seconds
         setTimeout(() => {
             const infoHint = document.querySelector('.info-hint');
             if (infoHint) {
@@ -302,6 +302,19 @@ export default class App {
                 }, 500);
             }
         }, 10000);
+
+        const originalStop = this.tourManager.stop.bind(this.tourManager);
+        this.tourManager.stop = function() {
+            originalStop();
+            
+            // Reset the buttons after 3.5 seconds.
+            setTimeout(() => {
+                const tourBtn = document.getElementById('tour-btn');
+                const stopBtn = document.getElementById('stop-tour');
+                if (tourBtn) tourBtn.style.display = 'flex';
+                if (stopBtn) stopBtn.style.display = 'none';
+            }, 3500);
+        };
                
     }
 
