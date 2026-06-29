@@ -3,24 +3,52 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3D Factory</title>
+  <title>3D Factory Tour - Digital Twin</title>
   <link rel="shortcut icon" href="/3D-Factory/favicon.png" type="image/png">
-  <script type="module" crossorigin src="/3D-Factory/assets/index-BXrVbuEv.js"></script>
-  <link rel="stylesheet" crossorigin href="/3D-Factory/assets/index-aFhDx_-1.css">
+  <script type="module" crossorigin src="/3D-Factory/assets/index-1w1bqZ7M.js"></script>
+  <link rel="stylesheet" crossorigin href="/3D-Factory/assets/index-BaabEGnU.css">
 </head>
 <body>
-  <!-- Loading Screen -->
+  <!-- ========== Loading Screen ========== -->
   <div id="loading-screen">
-    <div class="loading-content">
-      <div class="spinner"></div>
-      <div class="loading-text">Loading...</div>
-      <div class="progress-bar-container">
-        <div id="progress-bar" class="progress-bar"></div>
+      <div class="loading-content">
+          <div class="spinner"></div>
+          <div class="loading-text">Loading Factory...</div>
+          <div class="progress-bar-container">
+              <div id="progress-bar" class="progress-bar"></div>
+          </div>
+          <div id="progress-text" class="progress-text">0%</div>
       </div>
-      <div id="progress-text" class="progress-text">0%</div>
-    </div>
   </div>
-  
-  <canvas class="webgl"></canvas>
+  <!-- ========== Error Screen ========== -->
+  <div id="error-screen">
+      <div class="error-content">
+          <div class="error-icon">⚠️</div>
+          <div class="error-title">Loading Error</div>
+          <div id="error-message">Something went wrong!</div>
+          <button class="retry-btn" onclick="location.reload()">Retry</button>
+      </div>
+  </div>
+
+  <!-- Canvas container -->
+  <canvas class="webgl"></canvas>
+
+  <!-- Tour Controls -->
+  <div class="tour-controls">
+      <button id="tour-btn" class="tour-btn">
+          <span class="btn-icon">🏭</span>
+          Start Factory Tour
+      </button>
+      <button id="stop-tour" class="tour-btn">
+          <span class="btn-icon">⏹</span>
+          Stop Tour
+      </button>
+  </div>
+
+  <!-- Info Hint -->
+  <div class="info-hint">
+      🖱️ Mouse to rotate | 🔍 Scroll to zoom | ✋ Drag to pan
+  </div>
+
 </body>
 </html>
