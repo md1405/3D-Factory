@@ -10,6 +10,8 @@ import Camera from './Camera';
 import Renderer from './Renderer';
 import AssetManager from './AssetManager'; 
 import RaycasterManager from "./RaycasterManager";
+import { TourManager } from './TourManager';
+
 
 //utils
 // import AxisGridHelper from '../utils/AxisGridHelper'
@@ -29,7 +31,7 @@ import FactoryHall from '../objects/FactoryHall';
 import LoadingArea from '../objects/LoadingArea';
 import SectionalDoor from '../objects/SectionalDoor';
 import Tank from '../objects/Tank';
-import WalkWay from '../objects/WalkWay';
+// import WalkWay from '../objects/WalkWay';
 import Pipe from '../objects/Pipe.js';
  
 
@@ -146,7 +148,7 @@ export default class App {
         this.pipe = new Pipe();
         this.hall = new FactoryHall();
         this.door = new SectionalDoor();
-        this.walkWay = new WalkWay();
+        // this.walkWay = new WalkWay();
         this.conveyor = new Conveyor();
 
         this.conveyor.userData.equipmentId = "conveyor";
@@ -167,7 +169,7 @@ export default class App {
         this.factory.add(this.tank2);
         this.factory.add(this.pipe);
         this.factory.add(this.door);
-        this.factory.add(this.walkWay);
+        // this.factory.add(this.walkWay);
         this.scene.add(this.factory);
 
         this.loadingArea = new LoadingArea();
@@ -193,7 +195,7 @@ export default class App {
         this.raycaster.register(this.tank2);
         this.raycaster.register(this.conveyor);
 
-        this.language = "fa";
+        this.language = "en";
         this.raycaster.onSelect = (object) => {
             const equipment =
                 equipmentData[
@@ -258,7 +260,53 @@ export default class App {
         
         this.sizes.on('resize', this.resizeHandler);
         this.time.on('tick', this.tickHandler);
+
+
+        // TourManager 
+        this.tourManager = new TourManager(
+            this.camera.instance, 
+            this.camera.controls,  
+            this.scene
+        );
+
+        // document.getElementById
+        const tourBtn = document.getElementById('tour-btn');
+        const stopBtn = document.getElementById('stop-tour');
+
+        if (tourBtn) {
+            tourBtn.addEventListener('click', () => {
+                this.tourManager.start();
+                tourBtn.style.display = 'none';
+                if (stopBtn) stopBtn.style.display = 'flex';
+            });
+        }
+
+        if (stopBtn) {
+            stopBtn.addEventListener('click', () => {
+                this.tourManager.stop();
+                stopBtn.style.display = 'none';
+                if (tourBtn) tourBtn.style.display = 'flex';
+            });
+        }
+        if (this.assetManager) {
+            this.assetManager.hideLoadingScreen();
+        }
+        
+        // مخفی کردن info hint بعد از 5 ثانیه
+        setTimeout(() => {
+            const infoHint = document.querySelector('.info-hint');
+            if (infoHint) {
+                infoHint.style.opacity = '0';
+                setTimeout(() => {
+                    if (infoHint) infoHint.remove();
+                }, 500);
+            }
+        }, 10000);
+               
     }
+
+
+
     
     destroy() {
         // Clean up AssetManager

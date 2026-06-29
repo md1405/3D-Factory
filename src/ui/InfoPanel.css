@@ -21,10 +21,10 @@
 
 #info-title {
     margin-top:0;
-    direction: rtl;
+    direction: ltr;
 }
 
 #info-description{
     line-height:1.6;
-    direction: rtl;
+    direction: ltr;
 }

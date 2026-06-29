@@ -3,24 +3,52 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3D Factory</title>
+  <title>3D Factory Tour - Digital Twin</title>
   <link rel="stylesheet" href="/src/styles/style.css">
   <link rel="shortcut icon" href="/favicon.png" type="image/png">
 </head>
 <body>
-  <!-- Loading Screen -->
+  <!-- ========== Loading Screen ========== -->
   <div id="loading-screen">
-    <div class="loading-content">
-      <div class="spinner"></div>
-      <div class="loading-text">Loading...</div>
-      <div class="progress-bar-container">
-        <div id="progress-bar" class="progress-bar"></div>
+      <div class="loading-content">
+          <div class="spinner"></div>
+          <div class="loading-text">Loading Factory...</div>
+          <div class="progress-bar-container">
+              <div id="progress-bar" class="progress-bar"></div>
+          </div>
+          <div id="progress-text" class="progress-text">0%</div>
       </div>
-      <div id="progress-text" class="progress-text">0%</div>
-    </div>
   </div>
-  
+  <!-- ========== Error Screen ========== -->
+  <div id="error-screen">
+      <div class="error-content">
+          <div class="error-icon">⚠️</div>
+          <div class="error-title">Loading Error</div>
+          <div id="error-message">Something went wrong!</div>
+          <button class="retry-btn" onclick="location.reload()">Retry</button>
+      </div>
+  </div>
+
+  <!-- Canvas container -->
   <canvas class="webgl"></canvas>
+
+  <!-- Tour Controls -->
+  <div class="tour-controls">
+      <button id="tour-btn" class="tour-btn">
+          <span class="btn-icon">🏭</span>
+          Start Factory Tour
+      </button>
+      <button id="stop-tour" class="tour-btn">
+          <span class="btn-icon">⏹</span>
+          Stop Tour
+      </button>
+  </div>
+
+  <!-- Info Hint -->
+  <div class="info-hint">
+      🖱️ Mouse to rotate | 🔍 Scroll to zoom | ✋ Drag to pan
+  </div>
+
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>

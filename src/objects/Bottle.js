@@ -9,7 +9,7 @@ export default class Bottle extends THREE.Group {
         const bodyMaterial = new THREE.MeshStandardMaterial({ 
             color: 0xffffff, 
             roughness: 0.4,
-            transparent: true,
+            transparent: false,
             opacity: 0.8 
         });
         
