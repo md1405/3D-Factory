@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import GUI from 'lil-gui'
+// import GUI from 'lil-gui'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 
@@ -12,7 +12,6 @@ import AssetManager from './AssetManager';
 import RaycasterManager from "./RaycasterManager";
 import { TourManager } from './TourManager';
 
-
 //utils
 // import AxisGridHelper from '../utils/AxisGridHelper'
 
@@ -21,7 +20,7 @@ import InfoPanel from "../ui/InfoPanel";
 
 //factory
 import Factory from '../factory/Factory';
-import { equipmentData} from "../factory/EquipmentRegistry";
+import { equipmentData } from "../factory/EquipmentData";
 
 //objects
 import Light from '../objects/Lights';
@@ -183,41 +182,7 @@ export default class App {
         // makeAxisGrid(this.scene, 'scene', 50);
         // makeAxisGrid(this.factory, 'factory', 22);
         
-        // infopanel
 
-        this.infoPanel = new InfoPanel();
-        this.raycaster = new RaycasterManager(
-            this.camera.instance,
-            this.scene
-        )
-        
-        this.raycaster.register(this.tank1);
-        this.raycaster.register(this.tank2);
-        this.raycaster.register(this.conveyor);
-
-        this.language = "en";
-        this.raycaster.onSelect = (object) => {
-            const equipment =
-                equipmentData[
-                    object.userData.equipmentId
-                ];
-
-            if (!equipment) {
-                return;
-            }
-            const data =
-                equipment[this.language];
-
-            this.infoPanel.show(
-                data.title,
-                data.description
-            );
-        };
-        this.raycaster.onDeselect = () => {
-
-            this.infoPanel.hide();
-
-        }; 
 
         // resize
         this.resizeHandler = () => {
@@ -261,15 +226,79 @@ export default class App {
         this.sizes.on('resize', this.resizeHandler);
         this.time.on('tick', this.tickHandler);
 
+        
+        // ==========================================
+        // InfoPanel & Raycaster 
+        // ==========================================
 
-        // TourManager 
+        this.infoPanel = new InfoPanel();
+        this.raycaster = new RaycasterManager(
+            this.camera.instance,
+            this.scene
+        );
+
+        this.raycaster.register(this.tank1);
+        this.raycaster.register(this.tank2);
+        this.raycaster.register(this.conveyor);
+
+        this.language = "en";
+
+        // ✅ Callback انتخاب تجهیز
+        this.raycaster.onSelect = (object) => {
+            console.log('🖱️ Selected:', object.userData.equipmentId);
+            
+            const equipment = equipmentData[object.userData.equipmentId];
+            
+            if (!equipment) {
+                console.warn('⚠️ No data for:', object.userData.equipmentId);
+                return;
+            }
+            
+            // ✅ دسترسی صحیح به اطلاعات دو زبانه
+            const data = equipment.info?.[this.language] || equipment.info?.en;
+            
+            if (data) {
+                console.log('📝 Showing InfoPanel:', data.title);
+                this.infoPanel.show(data.title, data.description);
+                
+                // نمایش نام در selected-equipment
+                const equipmentName = document.getElementById('equipment-name');
+                const selectedEquipment = document.getElementById('selected-equipment');
+                if (equipmentName) equipmentName.textContent = data.title;
+                if (selectedEquipment) selectedEquipment.classList.add('visible');
+            }
+        };
+
+        // ✅ Callback لغو انتخاب
+        this.raycaster.onDeselect = () => {
+            console.log('👆 Deselected');
+            this.infoPanel.hide();
+            
+            const selectedEquipment = document.getElementById('selected-equipment');
+            if (selectedEquipment) selectedEquipment.classList.remove('visible');
+        };
+
+        // ==========================================
+        // TourManager
+        // ==========================================
+
         this.tourManager = new TourManager(
             this.camera.instance, 
             this.camera.controls,  
             this.scene
         );
+        const originalStop = this.tourManager.stop.bind(this.tourManager);
+        this.tourManager.stop = function() {
+            originalStop();
+            
+            // دکمه‌ها را بلافاصله ریست کن
+            const tourBtn = document.getElementById('tour-btn');
+            const stopBtn = document.getElementById('stop-tour');
+            if (tourBtn) tourBtn.style.display = 'flex';
+            if (stopBtn) stopBtn.style.display = 'none';
+        };
 
-        // document.getElementById
+
         const tourBtn = document.getElementById('tour-btn');
         const stopBtn = document.getElementById('stop-tour');
 
@@ -288,34 +317,25 @@ export default class App {
                 if (tourBtn) tourBtn.style.display = 'flex';
             });
         }
-        if (this.assetManager) {
-            this.assetManager.hideLoadingScreen();
-        }
-        
-        // Hide info hint after 5 seconds
-        setTimeout(() => {
-            const infoHint = document.querySelector('.info-hint');
-            if (infoHint) {
-                infoHint.style.opacity = '0';
-                setTimeout(() => {
-                    if (infoHint) infoHint.remove();
-                }, 500);
-            }
-        }, 10000);
 
-        const originalStop = this.tourManager.stop.bind(this.tourManager);
-        this.tourManager.stop = function() {
-            originalStop();
-            
-            // Reset the buttons after 3.5 seconds.
-            setTimeout(() => {
-                const tourBtn = document.getElementById('tour-btn');
-                const stopBtn = document.getElementById('stop-tour');
-                if (tourBtn) tourBtn.style.display = 'flex';
-                if (stopBtn) stopBtn.style.display = 'none';
-            }, 3500);
-        };
-               
+        // ==========================================
+        // Reset View Button
+        // ==========================================
+
+        const resetBtn = document.getElementById('reset-btn');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                if (this.tourManager && this.tourManager.isActive) {
+                    this.tourManager.stop();
+                }
+                
+                this.camera.instance.position.set(6, 5, 10);
+                if (this.camera.controls) {
+                    this.camera.controls.target.set(0, 2, 0);
+                    this.camera.controls.update();
+                }
+            });
+        }        
     }
 
 

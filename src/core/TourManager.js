@@ -1,6 +1,6 @@
 // src/core/TourManager.js
 import * as THREE from 'three';
-import { tourPoints } from '../factory/TourPoints';
+import { tourPoints } from '../factory/EquipmentData';
 
 export class TourManager {
     constructor(camera, controls, scene) {
@@ -195,9 +195,9 @@ export class TourManager {
             <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">
                 ${point.name}
             </div>
-            <div style="font-size: 14px; font-weight: normal; margin-bottom: 5px;">
+            <!-- <div style="font-size: 14px; font-weight: normal; margin-bottom: 5px;">
                 ${point.description}
-            </div>
+            </div> -->
         `;
         
         this.infoContainer.style.opacity = '1';

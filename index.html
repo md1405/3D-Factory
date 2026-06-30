@@ -3,49 +3,87 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3D Factory Tour - Digital Twin</title>
+  <meta name="description" content="Interactive 3D Dairy Factory Tour - Digital Twin Presentation">
+  <meta name="author" content="Factory Digital Twin">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏭</text></svg>">
+  
+  <title>Dairy Factory 3D Tour | Interactive Plant Visualization</title>
+
   <link rel="stylesheet" href="/src/styles/style.css">
-  <link rel="shortcut icon" href="/favicon.png" type="image/png">
+  <!-- <link rel="shortcut icon" href="/favicon.png" type="image/png"> -->
 </head>
 <body>
-  <!-- ========== Loading Screen ========== -->
-  <div id="loading-screen">
-      <div class="loading-content">
-          <div class="spinner"></div>
-          <div class="loading-text">Loading Factory...</div>
-          <div class="progress-bar-container">
-              <div id="progress-bar" class="progress-bar"></div>
-          </div>
-          <div id="progress-text" class="progress-text">0%</div>
-      </div>
-  </div>
-  <!-- ========== Error Screen ========== -->
-  <div id="error-screen">
-      <div class="error-content">
-          <div class="error-icon">⚠️</div>
-          <div class="error-title">Loading Error</div>
-          <div id="error-message">Something went wrong!</div>
-          <button class="retry-btn" onclick="location.reload()">Retry</button>
-      </div>
-  </div>
+    <!-- ========== Loading Screen ========== -->
+    <div id="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">DF</div>
+            <div class="spinner"></div>
+            <div class="loading-text">Loading Factory Environment...</div>
+            <div class="progress-bar-container">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+            <div id="progress-text">0%</div>
+        </div>
+    </div>
+
+    <!-- ========== Header ========== -->
+    <header id="header">
+        <div class="logo">
+            <div class="logo-icon">🏭</div>
+            <span class="logo-text">DAIRY FACTORY</span>
+        </div>
+        <div class="actions">
+            <button id="tour-btn" class="btn btn-primary">
+                <span class="btn-icon">▶</span>
+                Start Tour
+            </button>
+            <button id="stop-tour" class="btn btn-danger" style="display: none;">
+                <span class="btn-icon">⏹</span>
+                Stop
+            </button>
+            <button id="reset-btn" class="btn btn-secondary">
+                <span class="btn-icon">↺</span>
+                Reset View
+            </button>
+        </div>
+    </header>
+
+    <!-- ========== Status Bar ========== -->
+    <div id="status-bar">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-text">Ready</span>
+    </div>
+
+    <!-- ========== Selected Equipment ========== -->
+    <div id="selected-equipment">
+        <div class="label">Selected Equipment</div>
+        <div class="name" id="equipment-name">—</div>
+    </div>
+
+    <!-- ========== About Panel ========== -->
+    <div id="about-panel">
+        <div class="about-title">About This Facility</div>
+        <div class="about-text">
+            Interactive 3D presentation of a modern dairy processing facility. 
+            Explore equipment, follow production flow, and discover each stage 
+            of the manufacturing process.
+        </div>
+        <div class="about-divider"></div>
+        <ul class="about-features">
+            <li>Real-time 3D Visualization</li>
+            <li>Guided Factory Tour</li>
+            <li>Equipment Information</li>
+            <li>Interactive Controls</li>
+        </ul>
+    </div>
 
   <!-- Canvas container -->
   <canvas class="webgl"></canvas>
 
-  <!-- Tour Controls -->
-  <div class="tour-controls">
-      <button id="tour-btn" class="tour-btn">
-          <span class="btn-icon">🏭</span>
-          Start Factory Tour
-      </button>
-      <button id="stop-tour" class="tour-btn">
-          <span class="btn-icon">⏹</span>
-          Stop Tour
-      </button>
-  </div>
-
   <!-- Info Hint -->
-  <div class="info-hint">
+  <div id="hint">
       🖱️ Mouse to rotate | 🔍 Scroll to zoom | ✋ Drag to pan
   </div>
 

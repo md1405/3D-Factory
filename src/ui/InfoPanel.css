@@ -1,30 +1,51 @@
+/* InfoPanel.css - نسخه یکی‌شده */
 #info-panel {
+    position: fixed;
+    top: 80px;
+    right: 30px;
+    width: 320px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    z-index: 998;
+}
 
-    position:fixed;
-    
-    top: 20px;
-    left: 20px;
-
-    width: 180px;
-
+#info-panel-content {
+    background: rgba(26, 31, 46, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
     padding: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
 
-    background: rgba(255,255,255,.95);
-
-    border-radius: 10px;
-
-    box-shadow:
-        0 5px 15px rgba(0,0,0,.2);
-
-    z-index: 9999;
+#info-panel .label {
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
 }
 
 #info-title {
-    margin-top:0;
-    direction: ltr;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0 0 12px 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-#info-description{
-    line-height:1.6;
-    direction: ltr;
+#info-description {
+    font-size: 13px;
+    color: #94a3b8;
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* حذف selected-equipment جداگانه - InfoPanel جای هر دو را می‌گیرد */
+#selected-equipment {
+    display: none !important;
 }
