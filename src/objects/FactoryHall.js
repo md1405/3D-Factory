@@ -152,24 +152,24 @@ export default class Light extends THREE.Group {
     });
 
     const columnPositions = [
-        [-6, -8],
-        [-6, 8],
-        [6, -8],
-        [6, 8]
+        [-5.3, -8],
+        [-5.3, 8],
+        [5.3, -8],
+        [5.3, 8]
     ];
 
     columnPositions.forEach(([x, z]) => {
         const column = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.2, 0.25, wallHeight, 32),
+            new THREE.CylinderGeometry(0.2, 0.25, wallHeight+roofHeight/2, 32),
             columnMaterial
         );
-        column.position.set(x, wallHeight/2, z);
+        column.position.set(x, (wallHeight+roofHeight/2)/2 , z);
         this.add(column);
     });
 
     // floor
     const floorMaterial = new THREE.MeshStandardMaterial({
-        color: 0x555555,
+        color: 0x676767,
         roughness: 0.9,
         metalness: 0,
         side: THREE.DoubleSide,

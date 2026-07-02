@@ -1,4 +1,3 @@
-// src/core/TourManager.js
 import * as THREE from 'three';
 import { tourPoints } from '../factory/EquipmentData';
 
@@ -19,13 +18,13 @@ export class TourManager {
     }
 
     createUIElements() {
-        // Delete previous elements if they exist.
+        // Remove previous elements if they exist
         const existingInfo = document.getElementById('tour-info');
         const existingProgress = document.getElementById('tour-progress');
         if (existingInfo) existingInfo.remove();
         if (existingProgress) existingProgress.remove();
 
-        // Create a Tor data container
+        // Create tour info container
         this.infoContainer = document.createElement('div');
         this.infoContainer.id = 'tour-info';
         this.infoContainer.style.cssText = `
@@ -44,6 +43,7 @@ export class TourManager {
             border: 1px solid rgba(255, 255, 255, 0.2);
             text-align: center;
             pointer-events: none;
+            transition: opacity 0.3s ease;
         `;
         
         // Progress bar
@@ -51,16 +51,23 @@ export class TourManager {
         this.progressBar.id = 'tour-progress';
         this.progressBar.style.cssText = `
             position: fixed;
-            top: 20px;
+            top: 80px;
             left: 50%;
             transform: translateX(-50%);
-            width: 300px;
+            width: min(300px, 80%);
             height: 4px;
             background: rgba(255, 255, 255, 0.2);
             border-radius: 2px;
-            z-index: 1000;
+            z-index: 1001;
             display: none;
+            pointer-events: none;
         `;
+        
+        // Adjust position for mobile
+        if (window.innerWidth <= 768) {
+            this.progressBar.style.top = 'auto';
+            this.progressBar.style.bottom = '100px';
+        }        
         
         const progressFill = document.createElement('div');
         progressFill.id = 'progress-fill';
@@ -91,9 +98,8 @@ export class TourManager {
             this.controls.enabled = false;
         }
         
-        // UI display
-        this.infoContainer.style.display = 'block';
-        this.progressBar.style.display = 'block';
+        // Show UI
+        this.showUI();
         
         console.log('🎯 Tour started');
         this.moveToNextPoint();
@@ -109,8 +115,7 @@ export class TourManager {
         }
         
         // Hide UI
-        this.infoContainer.style.display = 'none';
-        this.progressBar.style.display = 'none';
+        this.hideUI();
         
         // Clear timer
         if (this.timer) {
@@ -121,10 +126,30 @@ export class TourManager {
         console.log('🛑 Tour stopped');
     }
 
+    showUI() {
+        if (this.infoContainer) {
+            this.infoContainer.style.display = 'block';
+            this.infoContainer.style.opacity = '1';
+        }
+        if (this.progressBar) {
+            this.progressBar.style.display = 'block';
+        }
+    }
+
+    hideUI() {
+        if (this.infoContainer) {
+            this.infoContainer.style.display = 'none';
+            this.infoContainer.style.opacity = '0';
+        }
+        if (this.progressBar) {
+            this.progressBar.style.display = 'none';
+        }
+    }
+
     moveToNextPoint() {
         if (!this.isActive || this.currentPointIndex >= tourPoints.length) {
-            this.stop();
-            this.showCompletionMessage();
+            // Tour has ended
+            this.completeTour();
             return;
         }
 
@@ -137,16 +162,42 @@ export class TourManager {
             progressFill.style.width = `${progress}%`;
         }
         
-        // Show point information
+        // Show current point information
         this.showPointInfo(point);
         
         // Smooth camera movement
         this.animateCamera(point, () => {
+            // Wait for specified duration after reaching the point
             this.timer = setTimeout(() => {
                 this.currentPointIndex++;
                 this.moveToNextPoint();
             }, point.duration || 4000);
         });
+    }
+
+    completeTour() {
+        // Deactivate tour without calling stop
+        this.isActive = false;
+        this.isTransitioning = false;
+        
+        // Re-enable OrbitControls
+        if (this.controls) {
+            this.controls.enabled = true;
+        }
+        
+        // Clear timer
+        if (this.timer) {
+            clearTimeout(this.timer);
+            this.timer = null;
+        }
+        
+        // Show completion message
+        this.showCompletionMessage();
+        
+        // Reset buttons
+        this.resetButtons();
+        
+        console.log('✅ Tour completed successfully');
     }
 
     animateCamera(point, onComplete) {
@@ -163,17 +214,17 @@ export class TourManager {
             // Smooth camera movement
             this.camera.position.lerp(targetPosition, this.transitionSpeed);
             
-            // Gaze point movement
+            // Look at point movement
             if (this.controls && this.controls.target) {
                 this.controls.target.lerp(targetLookAt, this.transitionSpeed);
                 this.controls.update();
             }
             
-            // Checking goal achievement
+            // Check if target reached
             const distance = this.camera.position.distanceTo(targetPosition);
             
             if (distance < 0.1) {
-                // goal achievement  
+                // Target reached
                 this.camera.position.copy(targetPosition);
                 if (this.controls && this.controls.target) {
                     this.controls.target.copy(targetLookAt);
@@ -191,42 +242,58 @@ export class TourManager {
     showPointInfo(point) {
         if (!this.infoContainer) return;
         
+        // Ensure container is visible
+        this.infoContainer.style.display = 'block';
+        this.infoContainer.style.opacity = '1';
+        
         this.infoContainer.innerHTML = `
             <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">
                 ${point.name}
             </div>
-            <!-- <div style="font-size: 14px; font-weight: normal; margin-bottom: 5px;">
-                ${point.description}
-            </div> -->
+            ${point.description ? `
+                <div style="font-size: 14px; font-weight: normal; margin-bottom: 5px; opacity: 0.8;">
+                    ${point.description}
+                </div>
+            ` : ''}
         `;
-        
-        this.infoContainer.style.opacity = '1';
     }
 
     showCompletionMessage() {
         if (!this.infoContainer) return;
         
+        // Ensure container is visible
+        this.infoContainer.style.display = 'block';
+        this.infoContainer.style.opacity = '1';
+        
+        // Show success message
         this.infoContainer.innerHTML = `
-            <div style="font-size: 14px; opacity: 0.8;">
-                Tour Completed Successfully
+            <div style="font-size: 18px; font-weight: bold; color: #4CAF50; margin-bottom: 5px;">
+                ✅ Tour Completed Successfully
             </div>
         `;
-        this.infoContainer.style.display = 'block';
         
-        //  Hide after 3 seconds
+        // Update progress bar to 100%
+        const progressFill = document.getElementById('progress-fill');
+        if (progressFill) {
+            progressFill.style.width = '100%';
+        }
+        
+        // Hide after 3 seconds
         setTimeout(() => {
-            if (this.infoContainer) {
-                this.infoContainer.style.display = 'none';
-            }
-            const progressFill = document.getElementById('progress-fill');
-            if (progressFill) {
-                progressFill.style.width = '100%';
-            }
-            setTimeout(() => {
-                if (this.progressBar) {
-                    this.progressBar.style.display = 'none';
-                }
-            }, 500);
+            this.hideUI();
         }, 3000);
+    }
+
+    resetButtons() {
+        // Reset buttons to initial state
+        const tourBtn = document.getElementById('tour-btn');
+        const stopBtn = document.getElementById('stop-tour');
+        
+        if (tourBtn) {
+            tourBtn.style.display = 'flex';
+        }
+        if (stopBtn) {
+            stopBtn.style.display = 'none';
+        }
     }
 }

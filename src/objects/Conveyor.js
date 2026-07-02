@@ -165,7 +165,7 @@ export default class Conveyor extends THREE.Group {
     }
 
     this.rotation.y = Math.PI / 2;
-    this.position.set(-1.5, -0.5, -3);
+    this.position.set(-3.5, -0.5, -1);
     this.userData.equipmentId = "conveyor";
   }
 }

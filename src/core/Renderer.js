@@ -4,7 +4,9 @@ export default class Renderer {
   constructor(canvas, scene, camera) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    this.renderer.physicallyCorrectLights = true;
     this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type =  THREE.PCFSoftShadowMap;
     
     this.scene = scene;
     this.camera = camera;

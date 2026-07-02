@@ -1,76 +1,99 @@
-import { Group, DirectionalLight, AmbientLight, Object3D, Vector3 } from 'three'
+import * as THREE from "three";
 
-export default class Light extends Group {
-  constructor(scene, color = 0xffffff, intensity = 3) {
-    super()
-    
-    this.scene = scene;
-    this.light1 = new DirectionalLight(color, intensity);
-    this.customProperties = new Map();  
-    this.disposed = false;
-    
-    this.light1.position.set(5, 8, 8);
-    
-    this.light1.target = new Object3D();
-    this.light1.target.position.set(0, 0, 0);
-    scene.add(this.light1.target); 
-    
-    this.light1.castShadow = true;
-    this.light1.shadow.mapSize.width = 1024;
-    this.light1.shadow.mapSize.height = 1024;
-    this.light1.shadow.camera.left = -10;
-    this.light1.shadow.camera.right = 10;
-    this.light1.shadow.camera.top = 10;
-    this.light1.shadow.camera.bottom = -10;
-    this.light1.shadow.camera.near = 0.5;
-    this.light1.shadow.camera.far = 50;
-    
-    this.add(this.light1);
+export default class Lights extends THREE.Group {
+    constructor(scene) {
+        super();
 
-    this.light2 = new AmbientLight(color, intensity=1);
-    this.add(this.light2);
-  }
-  
-  dispose() {
-    if (this.disposed) return;
-    
-    if (this.light.shadow.map) {
-      this.light.shadow.map.dispose();
+        this.scene = scene;
+
+        // ==========================================
+        // Ambient Light
+        // ==========================================
+
+        this.ambient = new THREE.AmbientLight(
+            0xffffff,
+            0.4
+        );
+
+        this.add(this.ambient);
+
+        // ==========================================
+        // Sun Light
+        // ==========================================
+
+        this.sun = new THREE.DirectionalLight(
+            0xffffff,
+            3
+        );
+
+        this.sun.position.set(8, 12, 8);
+
+        this.sun.castShadow = true;
+
+        // Shadow Quality
+        this.sun.shadow.mapSize.set(2048, 2048);
+
+        // Shadow Camera
+        this.sun.shadow.camera.left = -8;
+        this.sun.shadow.camera.right = 8;
+        this.sun.shadow.camera.top = 8;
+        this.sun.shadow.camera.bottom = -8;
+
+        this.sun.shadow.camera.near = 1;
+        this.sun.shadow.camera.far = 20;
+
+        this.sun.shadow.bias = -0.0002;
+
+        // Target
+        this.sun.target.position.set(0, 0, 0);
+
+        this.add(this.sun);
+
+        // Target باید داخل Scene باشد
+        scene.add(this.sun.target);
+
+        this.sun.target.updateMatrixWorld();
+        this.sun.shadow.camera.updateProjectionMatrix();
     }
-    
-    if (this.light.target && this.light.target.parent) {
-      this.light.target.parent.remove(this.light.target);
+
+    setPosition(x, y, z) {
+        this.sun.position.set(x, y, z);
     }
-    
-    if (this.parent) {
-      this.parent.remove(this);
+
+    lookAt(x, y, z) {
+        this.sun.target.position.set(x, y, z);
+        this.sun.target.updateMatrixWorld();
     }
-    
-    this.light = null;
-    this.customProperties.clear();
-    this.disposed = true;
-  }
-  
-  setWorldPosition(x, y, z) {
-    const worldPos = new Vector3(x, y, z);
-    this.light.position.copy(worldPos);
-  }
-  
-  setCustomProperty(key, value) {
-    const blockedKeys = ['__proto__', 'constructor', 'prototype'];
-    if (blockedKeys.includes(key)) {
-      console.error('Security: Attempt to set dangerous property "${key}" blocked');
-      return;
+
+    enableHelper() {
+
+        this.helper = new THREE.DirectionalLightHelper(
+            this.sun,
+            2
+        );
+
+        this.shadowHelper = new THREE.CameraHelper(
+            this.sun.shadow.camera
+        );
+
+        this.scene.add(this.helper);
+        this.scene.add(this.shadowHelper);
     }
-    this.customProperties.set(key, value);
-  }
-  
-  getCustomProperty(key) {
-    return this.customProperties.get(key);
-  }
-  
-  updatePosition(x, y, z) {
-    this.light.position.set(x, y, z);
-    this.light.updateMatrix(); 
-  }
+
+    dispose() {
+
+        if (this.helper) {
+            this.scene.remove(this.helper);
+            this.helper.dispose();
+        }
+
+        if (this.shadowHelper) {
+            this.scene.remove(this.shadowHelper);
+            this.shadowHelper.dispose();
+        }
+
+        this.scene.remove(this.sun.target);
+
+        this.clear();
+    }
 }

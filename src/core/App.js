@@ -154,9 +154,10 @@ export default class App {
 
         const bottles = [];
 
-        for(let i=0;i<5;i++){
+        for(let i=0;i<10;i++){
             this.bottle = new Bottle();
-            this.bottle.position.set(-4 + (i * 1.5), 2.5, 3 ) ;
+            this.bottle.scale.set(0.5, 0.5, 0.5);
+            this.bottle.position.set(-4 + i , 2.25, 3 ) ;
             this.conveyor.add(this.bottle);
             bottles.push(this.bottle)
         }
@@ -281,24 +282,13 @@ export default class App {
         // ==========================================
         // TourManager
         // ==========================================
-
         this.tourManager = new TourManager(
             this.camera.instance, 
             this.camera.controls,  
             this.scene
         );
-        const originalStop = this.tourManager.stop.bind(this.tourManager);
-        this.tourManager.stop = function() {
-            originalStop();
-            
-            // دکمه‌ها را بلافاصله ریست کن
-            const tourBtn = document.getElementById('tour-btn');
-            const stopBtn = document.getElementById('stop-tour');
-            if (tourBtn) tourBtn.style.display = 'flex';
-            if (stopBtn) stopBtn.style.display = 'none';
-        };
 
-
+        // اصلاح رفتار دکمه‌ها
         const tourBtn = document.getElementById('tour-btn');
         const stopBtn = document.getElementById('stop-tour');
 
@@ -312,11 +302,51 @@ export default class App {
 
         if (stopBtn) {
             stopBtn.addEventListener('click', () => {
-                this.tourManager.stop();
+                this.tourManager.stop(); // اینجا stop دستی صدا زده می‌شود
                 stopBtn.style.display = 'none';
                 if (tourBtn) tourBtn.style.display = 'flex';
             });
         }
+
+
+
+
+
+        // this.tourManager = new TourManager(
+        //     this.camera.instance, 
+        //     this.camera.controls,  
+        //     this.scene
+        // );
+        // const originalStop = this.tourManager.stop.bind(this.tourManager);
+        // this.tourManager.stop = function() {
+        //     originalStop();
+            
+        //     // دکمه‌ها را بلافاصله ریست کن
+        //     const tourBtn = document.getElementById('tour-btn');
+        //     const stopBtn = document.getElementById('stop-tour');
+        //     if (tourBtn) tourBtn.style.display = 'flex';
+        //     if (stopBtn) stopBtn.style.display = 'none';
+        // };
+
+
+        // const tourBtn = document.getElementById('tour-btn');
+        // const stopBtn = document.getElementById('stop-tour');
+
+        // if (tourBtn) {
+        //     tourBtn.addEventListener('click', () => {
+        //         this.tourManager.start();
+        //         tourBtn.style.display = 'none';
+        //         if (stopBtn) stopBtn.style.display = 'flex';
+        //     });
+        // }
+
+        // if (stopBtn) {
+        //     stopBtn.addEventListener('click', () => {
+        //         this.tourManager.stop();
+        //         stopBtn.style.display = 'none';
+        //         if (tourBtn) tourBtn.style.display = 'flex';
+        //     });
+        // }
 
         // ==========================================
         // Reset View Button
@@ -329,7 +359,7 @@ export default class App {
                     this.tourManager.stop();
                 }
                 
-                this.camera.instance.position.set(6, 5, 10);
+                this.camera.instance.position.set(5.8, 5.7, 10.8);
                 if (this.camera.controls) {
                     this.camera.controls.target.set(0, 2, 0);
                     this.camera.controls.update();
