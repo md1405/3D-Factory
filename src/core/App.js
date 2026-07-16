@@ -27,6 +27,7 @@ import Light from '../objects/Lights';
 import  Bottle  from '../objects/Bottle.js';
 import  Conveyor  from '../objects/Conveyor.js';
 import FactoryHall from '../objects/FactoryHall';
+import Floor from '../objects/Floor.js';
 import LoadingArea from '../objects/LoadingArea';
 import SectionalDoor from '../objects/SectionalDoor';
 import Tank from '../objects/Tank';
@@ -144,6 +145,7 @@ export default class App {
         this.tank2.TankPlatform.name = "TankPlatform02"
 
         // factory
+        this.floor = new Floor();
         this.pipe = new Pipe();
         this.hall = new FactoryHall();
         this.door = new SectionalDoor();
@@ -164,6 +166,7 @@ export default class App {
 
         this.factory = new Factory();
         this.factory.add(this.conveyor);
+        this.factory.add(this.floor);
         this.factory.add(this.hall);
         this.factory.add(this.tank1);
         this.factory.add(this.tank2);

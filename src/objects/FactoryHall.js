@@ -167,21 +167,21 @@ export default class Light extends THREE.Group {
         this.add(column);
     });
 
-    // floor
-    const floorMaterial = new THREE.MeshStandardMaterial({
-        color: 0x676767,
-        roughness: 0.9,
-        metalness: 0,
-        side: THREE.DoubleSide,
-    });
-    const floor = new THREE.Mesh(
-        new THREE.PlaneGeometry(wallWidth - 0.2, wallDepth - 0.2),
-        floorMaterial
-    );
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.set(0, 0.01, 0);
-    floor.receiveShadow = true;
-    this.add(floor);
+    // // floor
+    // const floorMaterial = new THREE.MeshStandardMaterial({
+    //     color: 0x676767,
+    //     roughness: 0.9,
+    //     metalness: 0,
+    //     side: THREE.DoubleSide,
+    // });
+    // const floor = new THREE.Mesh(
+    //     new THREE.PlaneGeometry(wallWidth - 0.2, wallDepth - 0.2),
+    //     floorMaterial
+    // );
+    // floor.rotation.x = -Math.PI / 2;
+    // floor.position.set(0, 0.01, 0);
+    // floor.receiveShadow = true;
+    // this.add(floor);
 
     this.name = 'FactoryHall';
 

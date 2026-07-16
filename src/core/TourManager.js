@@ -17,9 +17,10 @@ export class TourManager {
         // Store equipment IDs in order
         this.equipmentIds = Object.keys(equipmentData);
         
-        // Highlight color
+        // Highlight tracking
         this.highlightColor = new THREE.Color(0x4a90e2);
         this.highlightIntensity = 0.4;
+        this.highlightedMeshes = []; // Track currently highlighted meshes
         
         // Initialize UI
         this.initUI();
@@ -115,62 +116,120 @@ export class TourManager {
     // Emissive Highlight System
     // ==========================================
     
+    /**
+     * Finds all meshes belonging to an equipment by checking userData.equipmentId
+     * on both the mesh itself and its parent chain up to scene level.
+     */
     findMeshesByEquipmentId(equipmentId) {
         const meshes = [];
+        
         this.scene.traverse((child) => {
-            if (child.isMesh && child.userData.equipmentId === equipmentId) {
+            if (!child.isMesh) return;
+            
+            // Check mesh itself
+            if (child.userData.equipmentId === equipmentId) {
                 meshes.push(child);
+                return;
+            }
+            
+            // Check parent chain (but stop at scene or factory level)
+            let current = child.parent;
+            while (current && current !== this.scene) {
+                if (current.userData.equipmentId === equipmentId) {
+                    meshes.push(child);
+                    break;
+                }
+                current = current.parent;
             }
         });
+        
         return meshes;
     }
 
+    /**
+     * Highlights the specified equipment by applying emissive to all its meshes.
+     * Automatically clears previous highlight first.
+     */
     highlightEquipment3D(equipmentId) {
-        // First clear all highlights
+        // ALWAYS clear previous highlight first
         this.clearAllHighlights3D();
         
         if (!equipmentId) return;
         
         const meshes = this.findMeshesByEquipmentId(equipmentId);
         
+        if (meshes.length === 0) {
+            console.warn(`⚠️ No meshes found for equipment: ${equipmentId}`);
+            return;
+        }
+        
         meshes.forEach(mesh => {
-            // Handle multi-material meshes
             const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
             
             materials.forEach(mat => {
-                if (mat && mat.emissive !== undefined && !mat._originalEmissive) {
-                    // Store original values
+                // Only process StandardMaterial or PhongMaterial
+                if (!mat || mat.emissive === undefined) return;
+                
+                // Store original values (only if not already stored)
+                if (mat._originalEmissive === undefined) {
                     mat._originalEmissive = mat.emissive.getHex();
-                    mat._originalEmissiveIntensity = mat.emissiveIntensity || 0;
-                    
-                    // Apply highlight
-                    mat.emissive.copy(this.highlightColor);
-                    mat.emissiveIntensity = this.highlightIntensity;
-                    mat.needsUpdate = true;
+                    mat._originalEmissiveIntensity = mat.emissiveIntensity !== undefined ? mat.emissiveIntensity : 0;
+                }
+                
+                // Apply highlight
+                mat.emissive.copy(this.highlightColor);
+                mat.emissiveIntensity = this.highlightIntensity;
+                mat.needsUpdate = true;
+                
+                // Track this material for cleanup
+                if (!this.highlightedMeshes.includes(mat)) {
+                    this.highlightedMeshes.push(mat);
                 }
             });
         });
         
-        console.log(`✨ Highlighted: ${equipmentId} (${meshes.length} meshes)`);
+        console.log(`✨ Highlighted: ${equipmentId} (${meshes.length} meshes, ${this.highlightedMeshes.length} materials tracked)`);
     }
 
+    /**
+     * Restores ALL highlighted materials to their original state.
+     * Uses tracked list for reliability.
+     */
     clearAllHighlights3D() {
-        this.scene.traverse((child) => {
-            if (child.isMesh) {
-                const materials = Array.isArray(child.material) ? child.material : [child.material];
+        // Method 1: Clear using tracked materials list
+        this.highlightedMeshes.forEach(mat => {
+            if (mat && mat._originalEmissive !== undefined) {
+                mat.emissive.setHex(mat._originalEmissive);
+                mat.emissiveIntensity = mat._originalEmissiveIntensity;
+                mat.needsUpdate = true;
                 
-                materials.forEach(mat => {
-                    if (mat && mat._originalEmissive !== undefined) {
-                        mat.emissive.setHex(mat._originalEmissive);
-                        mat.emissiveIntensity = mat._originalEmissiveIntensity || 0;
-                        mat.needsUpdate = true;
-                        
-                        delete mat._originalEmissive;
-                        delete mat._originalEmissiveIntensity;
-                    }
-                });
+                delete mat._originalEmissive;
+                delete mat._originalEmissiveIntensity;
             }
         });
+        
+        // Clear the tracked list
+        this.highlightedMeshes = [];
+        
+        // Method 2: Safety net - traverse scene and clean any leftover highlights
+        this.scene.traverse((child) => {
+            if (!child.isMesh) return;
+            
+            const materials = Array.isArray(child.material) ? child.material : [child.material];
+            
+            materials.forEach(mat => {
+                if (mat && mat._originalEmissive !== undefined) {
+                    mat.emissive.setHex(mat._originalEmissive);
+                    mat.emissiveIntensity = mat._originalEmissiveIntensity;
+                    mat.needsUpdate = true;
+                    
+                    delete mat._originalEmissive;
+                    delete mat._originalEmissiveIntensity;
+                }
+            });
+        });
+        
+        console.log('🧹 All 3D highlights cleared');
     }
 
     // ==========================================
@@ -229,16 +288,12 @@ export class TourManager {
         // Re-enable OrbitControls
         this.controls.enabled = true;
         
-        // Toggle UI
-        this.defaultControls.style.display = 'flex';
-        this.tourControls.style.display = 'none';
-        this.stepIndicator.style.display = 'none';
-        this.tourInfo.style.display = 'none';
-        if (this.hint) this.hint.style.display = 'block';
-        
-        // Clear highlights
+        // 🧹 CLEAR ALL HIGHLIGHTS
         this.clearEquipmentHighlight();
         this.clearAllHighlights3D();
+        
+        // ✅ RESET UI TO DEFAULT STATE
+        this.resetUItoDefault();
         
         // Hide selected equipment
         if (this.selectedEquipDiv) {
@@ -247,7 +302,48 @@ export class TourManager {
         
         this.hideStatus();
         
-        console.log('🛑 Tour stopped');
+        console.log('🛑 Tour stopped - all highlights cleared, UI reset');
+    }
+
+    /**
+     * Centralized method to reset all UI elements to their default state.
+     * Called by both stop() and completeTour().
+     */
+    resetUItoDefault() {
+        // Hide tour controls
+        if (this.tourControls) {
+            this.tourControls.style.display = 'none';
+        }
+        
+        // Hide step indicator
+        if (this.stepIndicator) {
+            this.stepIndicator.style.display = 'none';
+        }
+        
+        // Hide tour info
+        if (this.tourInfo) {
+            this.tourInfo.style.display = 'none';
+        }
+        
+        // Show hint
+        if (this.hint) {
+            this.hint.style.display = 'block';
+        }
+        
+        // ✅ Show default controls (Start Tour + Reset View)
+        if (this.defaultControls) {
+            this.defaultControls.style.display = 'flex';
+        }
+        
+        // Clear equipment list highlight
+        this.clearEquipmentHighlight();
+        
+        // Hide selected equipment
+        if (this.selectedEquipDiv) {
+            this.selectedEquipDiv.classList.remove('visible');
+        }
+        
+        this.hideStatus();
     }
 
     togglePause() {
@@ -356,7 +452,7 @@ export class TourManager {
         this.updateTourInfo(point, equipData);
         this.updateSelectedEquipment(point, equipData);
         
-        // Highlight 3D equipment
+        // 🎯 Highlight 3D equipment (this automatically clears previous)
         this.highlightEquipment3D(equipId);
         
         // Update status
@@ -470,15 +566,17 @@ export class TourManager {
         
         this.controls.enabled = true;
         
-        // Clear all 3D highlights
+        // 🧹 CLEAR ALL HIGHLIGHTS
         this.clearAllHighlights3D();
+        this.clearEquipmentHighlight();
         
-        // Show completion in tour-info
+        // Show completion message in tour-info
         if (this.tourInfo) {
             this.tourInfo.innerHTML = `
                 <div class="tour-info-title" style="color: #4CAF50;">✅ Tour Completed</div>
                 <div class="tour-info-desc">All equipment has been reviewed.</div>
             `;
+            this.tourInfo.style.display = 'block';
         }
         
         this.updateStatus('Tour Completed', 'completed');
@@ -488,19 +586,20 @@ export class TourManager {
             this.selectedEquipDiv.classList.remove('visible');
         }
         
-        // Reset everything after 3 seconds
-        setTimeout(() => {
-            this.defaultControls.style.display = 'flex';
-            this.tourControls.style.display = 'none';
+        // Hide step indicator
+        if (this.stepIndicator) {
             this.stepIndicator.style.display = 'none';
-            this.tourInfo.style.display = 'none';
-            if (this.hint) this.hint.style.display = 'block';
-            this.clearEquipmentHighlight();
-            this.hideStatus();
+        }
+        
+        // ✅ After 3 seconds, reset to default UI with Start Tour button
+        setTimeout(() => {
+            this.resetUItoDefault();
+            console.log('✅ Tour completed - UI reset to default');
         }, 3000);
         
-        console.log('✅ Tour completed');
+        console.log('✅ Tour completed - all highlights cleared');
     }
+
 
     resetView() {
         if (this.isActive) {
