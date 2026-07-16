@@ -11,9 +11,8 @@
   
   <title>Dairy Factory 3D Tour | Interactive Plant Visualization</title>
 
-  <!-- <link rel="shortcut icon" href="/favicon.png" type="image/png"> -->
-  <script type="module" crossorigin src="/3D-Factory/assets/index-BWjnatyP.js"></script>
-  <link rel="stylesheet" crossorigin href="/3D-Factory/assets/index-D7MlwilG.css">
+  <script type="module" crossorigin src="/3D-Factory/assets/index-DY5lcgvH.js"></script>
+  <link rel="stylesheet" crossorigin href="/3D-Factory/assets/index-DcYnlpez.css">
 </head>
 <body>
     <!-- ========== Loading Screen ========== -->
@@ -35,14 +34,28 @@
             <div class="logo-icon">🏭</div>
             <span class="logo-text">DAIRY FACTORY</span>
         </div>
-        <div class="actions">
+        <div class="actions" id="tour-controls" style="display: none;">
+            <button id="tour-prev" class="btn btn-secondary">
+                <span class="btn-icon">◀</span>
+                Previous
+            </button>
+            <button id="tour-pause" class="btn btn-primary">
+                <span class="btn-icon">⏸</span>
+                Pause
+            </button>
+            <button id="tour-next" class="btn btn-secondary">
+                <span class="btn-icon">▶</span>
+                Next
+            </button>
+            <button id="tour-stop" class="btn btn-danger">
+                <span class="btn-icon">⏹</span>
+                Exit Tour
+            </button>
+        </div>
+        <div class="actions" id="default-controls">
             <button id="tour-btn" class="btn btn-primary">
                 <span class="btn-icon">▶</span>
                 Start Tour
-            </button>
-            <button id="stop-tour" class="btn btn-danger" style="display: none;">
-                <span class="btn-icon">⏹</span>
-                Stop
             </button>
             <button id="reset-btn" class="btn btn-secondary">
                 <span class="btn-icon">↺</span>
@@ -51,33 +64,36 @@
         </div>
     </header>
 
+    <!-- ========== Step Indicator ========== -->
+    <div id="step-indicator" style="display: none;">
+        <span id="step-text">Step 1 / 4</span>
+        <span id="step-divider">—</span>
+        <span id="step-name">Raw Milk Storage</span>
+    </div>
+
     <!-- ========== Status Bar ========== -->
     <div id="status-bar">
         <span class="status-dot" id="status-dot"></span>
         <span id="status-text">Ready</span>
     </div>
 
-    <!-- ========== Selected Equipment ========== -->
+    <!-- ========== Selected Equipment (top-right) ========== -->
     <div id="selected-equipment">
         <div class="label">Selected Equipment</div>
         <div class="name" id="equipment-name">—</div>
     </div>
 
-    <!-- ========== About Panel ========== -->
-    <div id="about-panel">
-        <div class="about-title">About This Facility</div>
-        <div class="about-text">
-            Interactive 3D presentation of a modern dairy processing facility. 
-            Explore equipment, follow production flow, and discover each stage 
-            of the manufacturing process.
-        </div>
-        <div class="about-divider"></div>
-        <ul class="about-features">
-            <li>Real-time 3D Visualization</li>
-            <li>Guided Factory Tour</li>
-            <li>Equipment Information</li>
-            <li>Interactive Controls</li>
+    <!-- ========== Equipment List Panel (left side, replaces About) ========== -->
+    <div id="equipment-panel">
+        <div class="equipment-panel-title">Equipment List</div>
+        <ul id="equipment-list" class="equipment-list">
+            <!-- Dynamically populated by TourManager -->
         </ul>
+    </div>
+
+    <!-- ========== Tour Info Panel (bottom center, during tour) ========== -->
+    <div id="tour-info">
+        <!-- Dynamically populated by TourManager -->
     </div>
 
   <!-- Canvas container -->
