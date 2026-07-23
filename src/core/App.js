@@ -85,6 +85,21 @@ export default class App {
                     this.assetManager.assetPath('hdr/boiler_room.hdr')
                 ),
 
+                //models
+                this.assetManager.loadOBJModel(
+                    'medicStaff', 
+                    this.assetManager.assetPath('models/medic-staff/medic-staff.obj')
+                ),
+
+                //textures
+                this.assetManager.loadTexture('medicStaff_color', 
+                    this.assetManager.assetPath('models/medic-staff/texture_pbr_20250901.png'), true),
+                this.assetManager.loadTexture('medicStaff_normal', 
+                    this.assetManager.assetPath('models/medic-staff/texture_pbr_20250901_normal.png'), false),
+                this.assetManager.loadTexture('medicStaff_roughness', 
+                    this.assetManager.assetPath('models/medic-staff/texture_pbr_20250901_roughness.png'), false),
+                this.assetManager.loadTexture('medicStaff_metallic', 
+                    this.assetManager.assetPath('models/medic-staff/texture_pbr_20250901_metallic.png'), false),
             ]);
 
             this.assetManager.setEnvironmentMap('boiler_room', this.scene, {
@@ -165,6 +180,37 @@ export default class App {
         }
 
         this.factory = new Factory();
+
+
+        const medicStaffModel = this.assetManager.assets.models['medicStaff'];
+    
+        if (medicStaffModel) {
+            // Clone it so you can add multiple instances
+            const medicStaff = medicStaffModel.clone();
+
+            medicStaff.traverse((child) => {
+                if (child.isMesh) {
+                    child.material = new THREE.MeshStandardMaterial({
+                        map: this.assetManager.assets.textures['medicStaff_color'],
+                        normalMap: this.assetManager.assets.textures['medicStaff_normal'],
+                        roughnessMap: this.assetManager.assets.textures['medicStaff_roughness'],
+                        metalnessMap: this.assetManager.assets.textures['medicStaff_metallic'],
+                    });
+                }
+            });
+            
+            // Position it where you want in the factory
+            medicStaff.position.set(-3, 0, -3);
+            medicStaff.rotation.y = Math.PI / 2
+            medicStaff.scale.set(3, 3, 3);
+            
+            // Add to your factory or scene
+            this.factory.add(medicStaff);
+            // or: this.scene.add(medicStaff);
+        }
+
+
+
         this.factory.add(this.conveyor);
         this.factory.add(this.floor);
         this.factory.add(this.hall);
