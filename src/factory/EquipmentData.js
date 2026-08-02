@@ -14,6 +14,84 @@ export const equipmentData = {
         duration: 4000,
         processStep: 1,
         
+        // 🔥 NEW: Configuration schema
+        config: {
+            capacity: {
+                type: 'radio',
+                label: 'Capacity',
+                options: [
+                    { 
+                        value: 10000, 
+                        label: '10,000 L', 
+                        scale: 0.8,
+                        specs: [
+                            { label: 'Capacity', value: '10,000 Liters' },
+                            { label: 'Diameter', value: '1.6 m' },
+                            { label: 'Height', value: '5.0 m' },
+                            { label: 'Weight', value: '2,200 kg' }
+                        ]
+                    },
+                    { 
+                        value: 20000, 
+                        label: '20,000 L', 
+                        scale: 1.0,
+                        specs: [
+                            { label: 'Capacity', value: '20,000 Liters' },
+                            { label: 'Diameter', value: '2.0 m' },
+                            { label: 'Height', value: '6.4 m' },
+                            { label: 'Weight', value: '3,800 kg' }
+                        ]
+                    },
+                    { 
+                        value: 30000, 
+                        label: '30,000 L', 
+                        scale: 1.3,
+                        specs: [
+                            { label: 'Capacity', value: '30,000 Liters' },
+                            { label: 'Diameter', value: '2.4 m' },
+                            { label: 'Height', value: '7.0 m' },
+                            { label: 'Weight', value: '5,500 kg' }
+                        ]
+                    },
+                ],
+                default: 10000
+            },
+            material: {
+                type: 'radio',
+                label: 'Material',
+                options: [
+                    { 
+                        value: 'SS304', 
+                        label: 'SS304',
+                        color: 0xd8d8d8,
+                        specs: [
+                            { label: 'Material', value: 'Stainless Steel 304' },
+                            { label: 'Corrosion Resistance', value: 'Good' },
+                            { label: 'Max Temp', value: '870°C' }
+                        ]
+                    },
+                    { 
+                        value: 'SS316L', 
+                        label: 'SS316L',
+                        color: 0xe0e0e0,
+                        specs: [
+                            { label: 'Material', value: 'Stainless Steel 316L' },
+                            { label: 'Corrosion Resistance', value: 'Excellent' },
+                            { label: 'Max Temp', value: '870°C' }
+                        ]
+                    },
+                ],
+                default: 'SS304'
+            },
+        },
+        
+        // Current state (initialized from defaults)
+        currentConfig: {
+            capacity: 10000,
+            material: 'SS304',
+            insulation: true
+        },
+        
         // Full information for InfoPanel (bilingual)
         info: {
             fa: {
@@ -51,6 +129,36 @@ export const equipmentData = {
         duration: 4000,
         processStep: 2,
         
+        // 🔥 NEW: Configuration schema
+        config: {
+            capacity: {
+                type: 'radio',
+                label: 'Capacity',
+                options: [
+                    { value: 5000, label: '5,000 L', scale: 0.8, specs: [{ label: 'Capacity', value: '5,000 Liters' }] },
+                    { value: 10000, label: '10,000 L', scale: 1.0, specs: [{ label: 'Capacity', value: '10,000 Liters' }] },
+                    { value: 15000, label: '15,000 L', scale: 1.2, specs: [{ label: 'Capacity', value: '15,000 Liters' }] },
+                ],
+                default: 10000
+            },
+            material: {
+                type: 'radio',
+                label: 'Material',
+                options: [
+                    { value: 'SS304', label: 'SS304', color: 0xd8d8d8 },
+                    { value: 'SS316L', label: 'SS316L', color: 0xe8e8e8 },
+                ],
+                default: 'SS316L'
+            },
+
+        },
+        
+        currentConfig: {
+            capacity: 10000,
+            material: 'SS316L',
+            insulation: true
+        },
+        
         info: {
             fa: {
                 title: 'مخزن پاستوریزاسیون',
@@ -86,6 +194,35 @@ export const equipmentData = {
         target: [0, 2, 3],
         duration: 5000,
         processStep: 3,
+        
+        // 🔥 NEW: Configuration schema
+        config: {
+            speed: {
+                type: 'radio',
+                label: 'Speed',
+                options: [
+                    { value: 0.3, label: 'Low (80 bpm)', scale: 1.0 },
+                    { value: 0.5, label: 'Medium (120 bpm)', scale: 1.0 },
+                    { value: 0.8, label: 'High (180 bpm)', scale: 1.0 },
+                ],
+                default: 0.5
+            },
+            length: {
+                type: 'radio',
+                label: 'Length',
+                options: [
+                    { value: 6, label: '6 meters', scale: 0.75 },
+                    { value: 8, label: '8 meters', scale: 1.0 },
+                    { value: 10, label: '10 meters', scale: 1.25 },
+                ],
+                default: 8
+            },
+        },
+        
+        currentConfig: {
+            speed: 0.5,
+            length: 8
+        },
         
         info: {
             fa: {

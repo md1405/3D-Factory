@@ -6,17 +6,17 @@ export default class Conveyor extends THREE.Group {
     
     // Simple configuration 
     this.config = {
-      length: 10,        // conveyor belt length
-      width: 1.2,        // belt width
+      length: 10,
+      width: 1.2,
       beltThickness: 0.1,  
       rollerRadius: 0.2,    
       legHeight: 1.5,     
-      yPosition: 2,       // total belt height from the ground (matches your tanks)
-      zPosition: 3,       // depth position (same as your centerZ)
-      bottleGroupOffsetY: 0.5 //  bottle height on the belt
+      yPosition: 2,
+      zPosition: 3,
+      bottleGroupOffsetY: 0.5
     }
 
-    //  Materials
+    // Materials
     this.materials = {
       belt: new THREE.MeshStandardMaterial({
         color: 0x2c3e50,
@@ -40,12 +40,22 @@ export default class Conveyor extends THREE.Group {
       })
     }
 
-    // Building a hierarchical structure
-    // Conveyor (this)
-    //   ├── Belt System
-    //   ├── Rollers (Start, End)
-    //   ├── Supports (Legs)
-       
+    this.userData.equipmentId = "conveyor";
+    
+    this.buildConveyor();
+  }
+
+  /**
+   * Builds or rebuilds the entire conveyor structure.
+   * Called initially in constructor and on config changes.
+   */
+  buildConveyor() {
+    // Clear existing children
+    while (this.children.length > 0) {
+      this.remove(this.children[0]);
+    }
+    
+    // Create groups
     this.beltSystem = new THREE.Group()
     this.rollersGroup = new THREE.Group()
     this.supportsGroup = new THREE.Group()
@@ -54,10 +64,40 @@ export default class Conveyor extends THREE.Group {
     this.add(this.rollersGroup)
     this.add(this.supportsGroup)
 
-    // Calling construction methods
+    // Build components
     this.createBeltSystem()
     this.createRollers()
     this.createSupports()
+    
+    // Apply fixed transforms
+    this.rotation.y = Math.PI / 2;
+    this.position.set(-3.5, -0.5, -1);
+  }
+
+  /**
+   * Applies configuration from EquipmentData config panel.
+   * @param {Object} config - { speed: number, length: number }
+   */
+  applyConfig(config) {
+    let needsRebuild = false;
+    
+    // Speed → changes bottle animation speed (handled in app.js tick)
+    if (config.speed !== undefined && config.speed !== this.config.speed) {
+      this.config.speed = config.speed;
+      console.log(`⚡ Conveyor speed: ${config.speed} m/s`);
+      // Speed is handled in app.js tick, no rebuild needed
+    }
+    
+    // Length → requires full rebuild
+    if (config.length !== undefined && config.length !== this.config.length) {
+      this.config.length = config.length;
+      needsRebuild = true;
+      console.log(`📏 Conveyor length: ${config.length} meters`);
+    }
+    
+    if (needsRebuild) {
+      this.buildConveyor();
+    }
   }
 
   // Making the strap and edges
@@ -94,17 +134,17 @@ export default class Conveyor extends THREE.Group {
     
     // Starting roller (left)
     this.rollerStart = new THREE.Mesh(rollerGeo, this.materials.roller)
-    this.rollerStart.position.set(-length/2 + rollerRadius, yPosition, zPosition)
-    this.rollerStart.rotation.z = Math.PI / 2 // افقی کردن استوانه
-    this.rollerStart.rotation.y = Math.PI / 2 // چرخاندناستوانه
+    this.rollerStart.position.set(-length/2, yPosition, zPosition)
+    this.rollerStart.rotation.z = Math.PI / 2
+    this.rollerStart.rotation.y = Math.PI / 2
     this.rollerStart.castShadow = true
     this.rollersGroup.add(this.rollerStart)
     
     // End roller (right)
     this.rollerEnd = new THREE.Mesh(rollerGeo, this.materials.roller)
-    this.rollerEnd.position.set(length/2 - rollerRadius, yPosition, zPosition)
-    this.rollerEnd.rotation.z = Math.PI / 2 // افقی کردن استوانه
-    this.rollerEnd.rotation.y = Math.PI / 2 // چرخاندناستوانه
+    this.rollerEnd.position.set(length/2, yPosition, zPosition)
+    this.rollerEnd.rotation.z = Math.PI / 2
+    this.rollerEnd.rotation.y = Math.PI / 2
     this.rollerEnd.castShadow = true
     this.rollersGroup.add(this.rollerEnd)
     
@@ -128,7 +168,6 @@ export default class Conveyor extends THREE.Group {
   createSupports() {
     const { length, width, legHeight, yPosition, zPosition } = this.config
     
-    // Base pair along the strip
     const supportCount = 4
     const spacing = length / (supportCount + 1)
     
@@ -136,7 +175,6 @@ export default class Conveyor extends THREE.Group {
       const xPos = -length/2 + i * spacing
       const supportGroup = new THREE.Group()
       
-      // Two vertical legs
       const legGeo = new THREE.BoxGeometry(0.1, legHeight, 0.1)
       
       const frontLeg = new THREE.Mesh(legGeo, this.materials.support)
@@ -152,20 +190,13 @@ export default class Conveyor extends THREE.Group {
       supportGroup.add(frontLeg)
       supportGroup.add(backLeg)
       
-      // Horizontal connecting rod
       const barGeo = new THREE.BoxGeometry(0.08, 0.08, width - 0.2)
       const bar = new THREE.Mesh(barGeo, this.materials.detail)
-      bar.position.set(0, legHeight * 0.15, 0) // نزدیک زمین
+      bar.position.set(0, legHeight * 0.15, 0)
       supportGroup.add(bar)
       
-      // Placement of the base group
       supportGroup.position.set(xPos, yPosition - legHeight, zPosition)
       this.supportsGroup.add(supportGroup);
-
     }
-
-    this.rotation.y = Math.PI / 2;
-    this.position.set(-3.5, -0.5, -1);
-    this.userData.equipmentId = "conveyor";
   }
 }

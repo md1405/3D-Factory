@@ -61,6 +61,13 @@
                 Reset View
             </button>
         </div>
+        <!-- ========== Config Toggle Button (in Header) ========== -->
+
+        <button id="config-toggle-btn" class="btn btn-secondary">
+            <span class="btn-icon">⚙</span>
+            Config
+        </button>
+       
     </header>
 
     <!-- ========== Step Indicator ========== -->
@@ -74,12 +81,6 @@
     <div id="status-bar">
         <span class="status-dot" id="status-dot"></span>
         <span id="status-text">Ready</span>
-    </div>
-
-    <!-- ========== Selected Equipment (top-right) ========== -->
-    <div id="selected-equipment">
-        <div class="label">Selected Equipment</div>
-        <div class="name" id="equipment-name">—</div>
     </div>
 
     <!-- ========== Equipment List Panel (left side, replaces About) ========== -->
@@ -102,6 +103,18 @@
   <div id="hint">
       🖱️ Mouse to rotate | 🔍 Scroll to zoom | ✋ Drag to pan
   </div>
+
+
+
+    <!-- ========== Config Panel ========== -->
+    <div id="config-panel">
+        <div class="config-panel-header">
+            <span class="config-panel-title" id="config-title">Equipment Config</span>
+            <select id="config-equipment-selector"></select>
+        </div>
+        <div id="config-content"></div>
+        <div id="config-specs"></div>
+    </div>
 
   <script type="module" src="/src/main.js"></script>
 </body>

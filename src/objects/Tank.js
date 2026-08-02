@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { equipmentData } from '../factory/EquipmentData';
 
 export default class Tank extends THREE.Group {
   constructor() {
@@ -97,5 +98,46 @@ export default class Tank extends THREE.Group {
     this.TankLadder = ladderGroup;   
     this.TankPlatform = platform;   
 
+  }
+  // Add these methods to the Tank class
+
+  /**
+   * Applies configuration changes to the tank model.
+   * @param {Object} config - { capacity: number, material: string, insulation: boolean }
+   */
+  applyConfig(config) {
+      // 1. Capacity → Scale
+      const capacityOption = this._getConfigOption('capacity', config.capacity);
+      if (capacityOption) {
+          const s = capacityOption.scale;
+          this.scale.set(s, s, s);
+      }
+      
+      // 2. Material → Color
+      const materialOption = this._getConfigOption('material', config.material);
+      if (materialOption) {
+          // Change color of body material (shared between body, top, bottom)
+          this.children.forEach(child => {
+              if (child.isMesh && child.material.color) {
+                  // Check if it's the body material (not leg material)
+                  if (child.material.metalness > 0.5) {
+                      child.material.color.setHex(materialOption.color);
+                  }
+              }
+          });
+      }
+  }
+
+  /**
+   * Helper to find config option by value
+   */
+  _getConfigOption(configKey, value) {
+      const equipId = this.userData.equipmentId;
+      if (!equipId || !equipmentData[equipId]) return null;
+      
+      const config = equipmentData[equipId].config[configKey];
+      if (!config) return null;
+      
+      return config.options.find(o => o.value === value);
   }
 }

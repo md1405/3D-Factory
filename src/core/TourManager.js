@@ -49,10 +49,6 @@ export class TourManager {
         this.stepText = document.getElementById('step-text');
         this.stepName = document.getElementById('step-name');
         
-        // Selected equipment (top-right)
-        this.selectedEquipDiv = document.getElementById('selected-equipment');
-        this.equipmentNameSpan = document.getElementById('equipment-name');
-        
         // Status bar
         this.statusBar = document.getElementById('status-bar');
         this.statusDot = document.getElementById('status-dot');
@@ -288,62 +284,21 @@ export class TourManager {
         // Re-enable OrbitControls
         this.controls.enabled = true;
         
+        // Toggle UI
+        this.defaultControls.style.display = 'flex';
+        this.tourControls.style.display = 'none';
+        this.stepIndicator.style.display = 'none';
+        this.tourInfo.style.display = 'none';
+        if (this.hint) this.hint.style.display = 'block';
+        
         // 🧹 CLEAR ALL HIGHLIGHTS
         this.clearEquipmentHighlight();
         this.clearAllHighlights3D();
         
-        // ✅ RESET UI TO DEFAULT STATE
-        this.resetUItoDefault();
-        
-        // Hide selected equipment
-        if (this.selectedEquipDiv) {
-            this.selectedEquipDiv.classList.remove('visible');
-        }
         
         this.hideStatus();
         
-        console.log('🛑 Tour stopped - all highlights cleared, UI reset');
-    }
-
-    /**
-     * Centralized method to reset all UI elements to their default state.
-     * Called by both stop() and completeTour().
-     */
-    resetUItoDefault() {
-        // Hide tour controls
-        if (this.tourControls) {
-            this.tourControls.style.display = 'none';
-        }
-        
-        // Hide step indicator
-        if (this.stepIndicator) {
-            this.stepIndicator.style.display = 'none';
-        }
-        
-        // Hide tour info
-        if (this.tourInfo) {
-            this.tourInfo.style.display = 'none';
-        }
-        
-        // Show hint
-        if (this.hint) {
-            this.hint.style.display = 'block';
-        }
-        
-        // ✅ Show default controls (Start Tour + Reset View)
-        if (this.defaultControls) {
-            this.defaultControls.style.display = 'flex';
-        }
-        
-        // Clear equipment list highlight
-        this.clearEquipmentHighlight();
-        
-        // Hide selected equipment
-        if (this.selectedEquipDiv) {
-            this.selectedEquipDiv.classList.remove('visible');
-        }
-        
-        this.hideStatus();
+        console.log('🛑 Tour stopped - all highlights cleared');
     }
 
     togglePause() {
@@ -450,7 +405,6 @@ export class TourManager {
         this.updateStepIndicator(point);
         this.updateEquipmentHighlight();
         this.updateTourInfo(point, equipData);
-        this.updateSelectedEquipment(point, equipData);
         
         // 🎯 Highlight 3D equipment (this automatically clears previous)
         this.highlightEquipment3D(equipId);
@@ -552,12 +506,6 @@ export class TourManager {
         this.tourInfo.style.display = 'block';
     }
 
-    updateSelectedEquipment(point, equipData) {
-        if (!this.selectedEquipDiv || !this.equipmentNameSpan) return;
-        this.equipmentNameSpan.textContent = point.name;
-        this.selectedEquipDiv.classList.add('visible');
-    }
-
     completeTour() {
         this.isActive = false;
         this.isPaused = false;
@@ -570,36 +518,29 @@ export class TourManager {
         this.clearAllHighlights3D();
         this.clearEquipmentHighlight();
         
-        // Show completion message in tour-info
+        // Show completion in tour-info
         if (this.tourInfo) {
             this.tourInfo.innerHTML = `
                 <div class="tour-info-title" style="color: #4CAF50;">✅ Tour Completed</div>
                 <div class="tour-info-desc">All equipment has been reviewed.</div>
             `;
-            this.tourInfo.style.display = 'block';
         }
         
         this.updateStatus('Tour Completed', 'completed');
         
-        // Hide selected equipment
-        if (this.selectedEquipDiv) {
-            this.selectedEquipDiv.classList.remove('visible');
-        }
         
-        // Hide step indicator
-        if (this.stepIndicator) {
-            this.stepIndicator.style.display = 'none';
-        }
-        
-        // ✅ After 3 seconds, reset to default UI with Start Tour button
+        // Reset everything after 3 seconds
         setTimeout(() => {
-            this.resetUItoDefault();
-            console.log('✅ Tour completed - UI reset to default');
+            this.defaultControls.style.display = 'flex';
+            this.tourControls.style.display = 'none';
+            this.stepIndicator.style.display = 'none';
+            this.tourInfo.style.display = 'none';
+            if (this.hint) this.hint.style.display = 'block';
+            this.hideStatus();
         }, 3000);
         
         console.log('✅ Tour completed - all highlights cleared');
     }
-
 
     resetView() {
         if (this.isActive) {

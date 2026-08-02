@@ -1,0 +1,175 @@
+/* ========== Config Panel ========== */
+#config-panel {
+    position: fixed;
+    top: 80px;
+    right: 30px;
+    width: 300px;
+    max-height: calc(100vh - 160px);
+    background: rgba(26, 31, 46, 0.95);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    z-index: 997;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+#config-panel.visible {
+    display: flex;
+}
+
+.config-panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.config-panel-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+#config-equipment-selector {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    color: #c0ccda;
+    padding: 6px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    max-width: 160px;
+}
+
+#config-equipment-selector option {
+    background: #1a1f2e;
+    color: #ffffff;
+}
+
+#config-content {
+    padding: 16px 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.config-section {
+    margin-bottom: 20px;
+}
+
+.config-label {
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.config-radio-btn {
+    display: block;
+    width: 100%;
+    padding: 8px 14px;
+    margin-bottom: 4px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+    color: #94a3b8;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease;
+}
+
+.config-radio-btn:hover {
+    background: rgba(74, 144, 226, 0.1);
+    border-color: rgba(74, 144, 226, 0.3);
+    color: #ffffff;
+}
+
+.config-radio-btn.active {
+    background: rgba(74, 144, 226, 0.2);
+    border-color: #4a90e2;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.config-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+    color: #94a3b8;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.config-checkbox-label:hover {
+    background: rgba(74, 144, 226, 0.1);
+    border-color: rgba(74, 144, 226, 0.3);
+    color: #ffffff;
+}
+
+.config-checkbox-label input[type="checkbox"] {
+    accent-color: #4a90e2;
+    width: 16px;
+    height: 16px;
+}
+
+/* ========== Config Specs ========== */
+#config-specs {
+    padding: 16px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.config-specs-title {
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.config-spec-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.config-spec-label {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.config-spec-value {
+    font-size: 12px;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+/* ========== Toggle Button ========== */
+#config-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+@media (max-width: 768px) {
+    #config-panel {
+        width: calc(100vw - 20px);
+        right: 10px;
+        top: 70px;
+        max-height: 50vh;
+    }
+}

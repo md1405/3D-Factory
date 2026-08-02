@@ -11,12 +11,12 @@ import Renderer from './Renderer';
 import AssetManager from './AssetManager'; 
 import RaycasterManager from "./RaycasterManager";
 import { TourManager } from './TourManager';
+import ConfigManager from './ConfigManager.js'
 
 //utils
 // import AxisGridHelper from '../utils/AxisGridHelper'
 
 // ui
-import InfoPanel from "../ui/InfoPanel";
 
 //factory
 import Factory from '../factory/Factory';
@@ -169,15 +169,45 @@ export default class App {
 
         this.conveyor.userData.equipmentId = "conveyor";
 
-        const bottles = [];
+        // 🔥 گروه بطری‌ها
+        this.bottleGroup = new THREE.Group();
+        this.bottles = [];
 
-        for(let i=0;i<10;i++){
-            this.bottle = new Bottle();
-            this.bottle.scale.set(0.5, 0.5, 0.5);
-            this.bottle.position.set(-4 + i , 2.25, 3 ) ;
-            this.conveyor.add(this.bottle);
-            bottles.push(this.bottle)
-        }
+        // تابع ساخت بطری‌ها بر اساس طول conveyor
+        this.createBottles = () => {
+            // پاک کردن بطری‌های قبلی
+            while (this.bottleGroup.children.length > 0) {
+                this.bottleGroup.remove(this.bottleGroup.children[0]);
+            }
+            this.bottles = [];
+            
+            const conveyorLength = equipmentData.conveyor.currentConfig.length || 8;
+            const spacing = 1.0; // هر ۱ متر یه بطری
+            const count = Math.floor(conveyorLength / spacing);
+            const startX = -conveyorLength / 2 + 0.5;
+            
+            for (let i = 0; i < count; i++) {
+                const bottle = new Bottle();
+                bottle.scale.set(0.5, 0.5, 0.5);
+                bottle.position.set(startX + i * spacing, 2.25, 3);
+                this.bottleGroup.add(bottle);
+                this.bottles.push(bottle);
+            }
+            
+            console.log(`🍾 Created ${count} bottles for ${conveyorLength}m conveyor`);
+        };
+
+        // ساخت اولیه بطری‌ها
+        this.createBottles();
+
+        this.bottleGroup.position.copy(this.conveyor.position);
+        this.bottleGroup.rotation.copy(this.conveyor.rotation);
+
+        // ساخت اولیه بطری‌ها
+        this.createBottles();
+
+        this.bottleGroup.position.copy(this.conveyor.position);
+        this.bottleGroup.rotation.copy(this.conveyor.rotation);
 
         this.factory = new Factory();
 
@@ -212,6 +242,7 @@ export default class App {
 
 
         this.factory.add(this.conveyor);
+        this.factory.add(this.bottleGroup); 
         this.factory.add(this.floor);
         this.factory.add(this.hall);
         this.factory.add(this.tank1);
@@ -253,14 +284,27 @@ export default class App {
 
         // tick
         this.tickHandler = () => {
+            const conveyorLength = equipmentData.conveyor.currentConfig.length || 8;
 
-            bottles.forEach(bottle => {
-                bottle.position.x += speed;
-                
-                if(bottle.position.x > max) {
-                    bottle.position.x = min;
+            const min = -conveyorLength / 2 + 0.4;
+            const max =  conveyorLength / 2 - 0.4;
+
+            this.bottles.forEach((bottle) => {
+
+                const conveyorSpeed =
+                    equipmentData.conveyor.currentConfig.speed || 0.5;
+
+                const speedMultiplier = conveyorSpeed / 0.5;
+
+                bottle.position.x += 0.02 * speedMultiplier;
+
+                const beltLength = max - min;
+
+                if (bottle.position.x >= max) {
+                    bottle.position.x -= beltLength;
                 }
             });
+
             if (this.rollers) {
                 this.rollers.start.rotation.x += rollerRotationSpeed;
             }
@@ -281,7 +325,6 @@ export default class App {
         // InfoPanel & Raycaster 
         // ==========================================
 
-        this.infoPanel = new InfoPanel();
         this.raycaster = new RaycasterManager(
             this.camera.instance,
             this.scene
@@ -293,36 +336,35 @@ export default class App {
 
         this.language = "en";
 
-        // ✅ Callback انتخاب تجهیز
-        this.raycaster.onSelect = (object) => {
-            console.log('🖱️ Selected:', object.userData.equipmentId);
+        // // ✅ Callback انتخاب تجهیز
+        // this.raycaster.onSelect = (object) => {
+        //     console.log('🖱️ Selected:', object.userData.equipmentId);
             
-            const equipment = equipmentData[object.userData.equipmentId];
+        //     const equipment = equipmentData[object.userData.equipmentId];
             
-            if (!equipment) {
-                console.warn('⚠️ No data for:', object.userData.equipmentId);
-                return;
-            }
+        //     if (!equipment) {
+        //         console.warn('⚠️ No data for:', object.userData.equipmentId);
+        //         return;
+        //     }
             
-            // ✅ دسترسی صحیح به اطلاعات دو زبانه
-            const data = equipment.info?.[this.language] || equipment.info?.en;
+        //     // ✅ دسترسی صحیح به اطلاعات دو زبانه
+        //     const data = equipment.info?.[this.language] || equipment.info?.en;
             
-            if (data) {
-                console.log('📝 Showing InfoPanel:', data.title);
-                this.infoPanel.show(data.title, data.description);
+        //     if (data) {
+        //         console.log('📝 Showing InfoPanel:', data.title);
+        //         this.infoPanel.show(data.title, data.description);
                 
-                // نمایش نام در selected-equipment
-                const equipmentName = document.getElementById('equipment-name');
-                const selectedEquipment = document.getElementById('selected-equipment');
-                if (equipmentName) equipmentName.textContent = data.title;
-                if (selectedEquipment) selectedEquipment.classList.add('visible');
-            }
-        };
+        //         // نمایش نام در selected-equipment
+        //         const equipmentName = document.getElementById('equipment-name');
+        //         const selectedEquipment = document.getElementById('selected-equipment');
+        //         if (equipmentName) equipmentName.textContent = data.title;
+        //         if (selectedEquipment) selectedEquipment.classList.add('visible');
+        //     }
+        // };
 
         // ✅ Callback لغو انتخاب
         this.raycaster.onDeselect = () => {
             console.log('👆 Deselected');
-            this.infoPanel.hide();
             
             const selectedEquipment = document.getElementById('selected-equipment');
             if (selectedEquipment) selectedEquipment.classList.remove('visible');
@@ -336,6 +378,60 @@ export default class App {
             this.camera.controls,  
             this.scene
         );
+        // ==========================================
+        // ConfigManager — Equipment Configurator
+        // ==========================================
+        this.configManager = new ConfigManager();
+
+        // Toggle button
+        const configToggleBtn = document.getElementById('config-toggle-btn');
+        if (configToggleBtn) {
+            configToggleBtn.addEventListener('click', () => {
+                this.configManager.toggle();
+            });
+        }
+
+        this.configManager.onConfigChange = (equipmentId, config) => {  
+            console.log('🔧 Config changed:', equipmentId, config);
+            
+            let targetObject = null;
+            this.scene.traverse((child) => {
+                if (child.userData.equipmentId === equipmentId) {
+                    targetObject = child;
+                }
+            });
+            
+            if (targetObject && targetObject.applyConfig) {
+                targetObject.applyConfig(config);
+                
+                // 🔥 اگه conveyor بود و طول تغییر کرد، بطری‌ها رو rebuild کن
+                if (equipmentId === 'conveyor' && config.length !== undefined) {
+                    this.createBottles();
+                    this.bottleGroup.position.copy(targetObject.position);
+                    this.bottleGroup.rotation.copy(targetObject.rotation);
+                }
+            }
+        };
+        
+
+        // Also open config panel when clicking on equipment (optional)
+        const originalRaycasterCallback = this.raycaster.onSelect;
+        this.raycaster.onSelect = (object) => {
+            // Call original callback
+            if (originalRaycasterCallback) {
+                originalRaycasterCallback(object);
+            }
+            
+            // Open config panel for this equipment
+            if (object.userData.equipmentId) {
+                this.configManager.selectEquipment(object.userData.equipmentId);
+                this.configManager.show();
+            }
+        };
+
+
+
+
     }
 
     destroy() {
