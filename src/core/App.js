@@ -12,6 +12,7 @@ import AssetManager from './AssetManager';
 import RaycasterManager from "./RaycasterManager";
 import { TourManager } from './TourManager';
 import ConfigManager from './ConfigManager.js'
+import { LayoutManager } from './LayoutManager.js';
 
 //utils
 // import AxisGridHelper from '../utils/AxisGridHelper'
@@ -182,14 +183,27 @@ export default class App {
             this.bottles = [];
             
             const conveyorLength = equipmentData.conveyor.currentConfig.length || 8;
-            const spacing = 1.0; // هر ۱ متر یه بطری
-            const count = Math.floor(conveyorLength / spacing);
-            const startX = -conveyorLength / 2 + 0.5;
-            
+            const spacing = 1.0;
+
+            const beltStart = -conveyorLength / 2 + 0.4;
+            const beltEnd = conveyorLength / 2 - 0.4;
+
+            const beltUsable = beltEnd - beltStart;
+
+            const count = Math.floor(beltUsable / spacing);
+
             for (let i = 0; i < count; i++) {
+
                 const bottle = new Bottle();
+
                 bottle.scale.set(0.5, 0.5, 0.5);
-                bottle.position.set(startX + i * spacing, 2.25, 3);
+
+                bottle.position.set(
+                    beltStart + i * spacing,
+                    2.25,
+                    3
+                );
+
                 this.bottleGroup.add(bottle);
                 this.bottles.push(bottle);
             }
@@ -379,6 +393,23 @@ export default class App {
             this.scene
         );
         // ==========================================
+        // LayoutManager — Layout Configurator v0.3
+        // ==========================================
+
+        // توی setupScene، بعد از ساختن همه تجهیزات اضافه کن:
+        this.layoutManager = new LayoutManager(this.scene, this.factory);
+
+        // Register all equipment references
+        this.layoutManager.registerEquipment('tank1', this.tank1);
+        this.layoutManager.registerEquipment('tank2', this.tank2);
+        this.layoutManager.registerEquipment('pipe', this.pipe);
+        this.layoutManager.registerEquipment('conveyor', this.conveyor);
+        this.layoutManager.registerEquipment('bottleGroup', this.bottleGroup);
+
+        // Setup floor plan and grid
+        this.layoutManager.setup(this.scene);
+
+        // ==========================================
         // ConfigManager — Equipment Configurator
         // ==========================================
         this.configManager = new ConfigManager();
@@ -428,10 +459,6 @@ export default class App {
                 this.configManager.show();
             }
         };
-
-
-
-
     }
 
     destroy() {

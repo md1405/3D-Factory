@@ -11,6 +11,7 @@ export default class ConfigManager {
         this.specsContainer = document.getElementById('config-specs');
         
         this.buildEquipmentSelector();
+        this.hide();
     }
 
     buildEquipmentSelector() {

@@ -258,6 +258,11 @@ export class TourManager {
         this.tourInfo.style.display = 'block';
         if (this.hint) this.hint.style.display = 'none';
         
+        // ✅ نمایش باکس Equipment List هنگام شروع تور
+        if (this.equipmentPanel) {
+            this.equipmentPanel.style.display = 'block';
+        }
+        
         // Update pause button
         this.btnPause.innerHTML = '<span class="btn-icon">⏸</span> Pause';
         this.btnPause.className = 'btn btn-primary';
@@ -291,10 +296,14 @@ export class TourManager {
         this.tourInfo.style.display = 'none';
         if (this.hint) this.hint.style.display = 'block';
         
+        // ✅ مخفی کردن باکس Equipment List هنگام پایان تور
+        if (this.equipmentPanel) {
+            this.equipmentPanel.style.display = 'none';
+        }
+        
         // 🧹 CLEAR ALL HIGHLIGHTS
         this.clearEquipmentHighlight();
         this.clearAllHighlights3D();
-        
         
         this.hideStatus();
         
@@ -518,6 +527,11 @@ export class TourManager {
         this.clearAllHighlights3D();
         this.clearEquipmentHighlight();
         
+        // ✅ مخفی کردن باکس Equipment List
+        if (this.equipmentPanel) {
+            this.equipmentPanel.style.display = 'none';
+        }
+        
         // Show completion in tour-info
         if (this.tourInfo) {
             this.tourInfo.innerHTML = `
@@ -527,7 +541,6 @@ export class TourManager {
         }
         
         this.updateStatus('Tour Completed', 'completed');
-        
         
         // Reset everything after 3 seconds
         setTimeout(() => {
@@ -540,7 +553,7 @@ export class TourManager {
         }, 3000);
         
         console.log('✅ Tour completed - all highlights cleared');
-    }
+        }
 
     resetView() {
         if (this.isActive) {
