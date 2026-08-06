@@ -11,8 +11,8 @@
   
   <title>Dairy Factory 3D Tour | Interactive Plant Visualization</title>
 
-  <script type="module" crossorigin src="/3D-Factory/assets/index-CHQmSt6T.js"></script>
-  <link rel="stylesheet" crossorigin href="/3D-Factory/assets/index-CjB_zhUN.css">
+  <script type="module" crossorigin src="/3D-Factory/assets/index-AqeKtFQ7.js"></script>
+  <link rel="stylesheet" crossorigin href="/3D-Factory/assets/index-BUrJvZ3U.css">
 </head>
 <body>
     <!-- ========== Loading Screen ========== -->
@@ -34,6 +34,8 @@
             <div class="logo-icon">🏭</div>
             <span class="logo-text">DAIRY FACTORY</span>
         </div>
+        
+        <!-- Tour Controls (فقط موقع تور نشون داده میشه) -->
         <div class="actions" id="tour-controls" style="display: none;">
             <button id="tour-prev" class="btn btn-secondary">
                 <span class="btn-icon">◀</span>
@@ -52,6 +54,8 @@
                 Exit Tour
             </button>
         </div>
+        
+        <!-- Default Controls (همیشه نشون داده میشه) -->
         <div class="actions" id="default-controls">
             <button id="tour-btn" class="btn btn-primary">
                 <span class="btn-icon">▶</span>
@@ -61,14 +65,15 @@
                 <span class="btn-icon">↺</span>
                 Reset View
             </button>
+            <button id="config-toggle-btn" class="btn btn-secondary">
+                <span class="btn-icon">⚙</span>
+                Config
+            </button>
+            <button id="layout-toggle-btn" class="btn btn-secondary">
+                <span class="btn-icon">🏗️</span>
+                Layout
+            </button>
         </div>
-        <!-- ========== Config Toggle Button (in Header) ========== -->
-
-        <button id="config-toggle-btn" class="btn btn-secondary">
-            <span class="btn-icon">⚙</span>
-            Config
-        </button>
-       
     </header>
 
     <!-- ========== Step Indicator ========== -->
