@@ -217,13 +217,10 @@ export default class App {
         this.bottleGroup.position.copy(this.conveyor.position);
         this.bottleGroup.rotation.copy(this.conveyor.rotation);
 
-        // ساخت اولیه بطری‌ها
-        this.createBottles();
-
-        this.bottleGroup.position.copy(this.conveyor.position);
-        this.bottleGroup.rotation.copy(this.conveyor.rotation);
-
         this.factory = new Factory();
+
+        this.factory.add(this.conveyor);
+        this.factory.add(this.bottleGroup);
 
 
         const medicStaffModel = this.assetManager.assets.models['medicStaff'];
@@ -253,10 +250,6 @@ export default class App {
             // or: this.scene.add(medicStaff);
         }
 
-
-
-        this.factory.add(this.conveyor);
-        this.factory.add(this.bottleGroup); 
         this.factory.add(this.floor);
         this.factory.add(this.hall);
         this.factory.add(this.tank1);
