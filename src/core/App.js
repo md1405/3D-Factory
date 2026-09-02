@@ -244,10 +244,15 @@ export default class App {
             medicStaff.position.set(-3, 0, -3);
             medicStaff.rotation.y = Math.PI / 2
             medicStaff.scale.set(3, 3, 3);
+
+            this.medicStaff = medicStaff;
             
             // Add to your factory or scene
             this.factory.add(medicStaff);
-            // or: this.scene.add(medicStaff);
+
+            console.log('✅ MedicStaff created:', this.medicStaff.position);
+        } else {
+            console.warn('⚠️ MedicStaff model not found!');
         }
 
         this.factory.add(this.floor);
@@ -452,6 +457,54 @@ export default class App {
                 this.configManager.show();
             }
         };
+        // ==========================================
+        // LayoutManager — Layout Configurator v0.3
+        // ==========================================
+
+        // ساخت LayoutManager
+        this.layoutManager = new LayoutManager(this.scene, this.factory);
+
+        // ثبت تمام تجهیزات
+        this.layoutManager.registerEquipment('tank1', this.tank1);
+        this.layoutManager.registerEquipment('tank2', this.tank2);
+        this.layoutManager.registerEquipment('pipe', this.pipe);
+        this.layoutManager.registerEquipment('conveyor', this.conveyor);
+        this.layoutManager.registerEquipment('bottleGroup', this.bottleGroup);
+
+        // ثبت medicStaff
+        if (this.medicStaff) {
+            this.layoutManager.registerEquipment('medicStaff', this.medicStaff);
+        }
+
+        // Setup floor plan and grid
+        this.layoutManager.setup(this.scene);
+
+        // 🔴 اضافه کردن این بخش برای تست و اطمینان از کارکرد دکمه
+        console.log('🔍 Checking layout toggle button...');
+        const layoutToggleBtn = document.getElementById('layout-toggle-btn');
+        if (layoutToggleBtn) {
+            console.log('✅ Layout toggle button found');
+            
+            // حذف event listener قبلی (اگر وجود داشته باشد)
+            const newLayoutToggleBtn = layoutToggleBtn.cloneNode(true);
+            layoutToggleBtn.parentNode.replaceChild(newLayoutToggleBtn, layoutToggleBtn);
+            
+            // اضافه کردن event listener جدید
+            newLayoutToggleBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                const panel = document.getElementById('layout-panel');
+                if (panel) {
+                    panel.classList.toggle('visible');
+                    console.log('🔄 Layout panel toggled:', panel.classList.contains('visible'));
+                } else {
+                    console.warn('⚠️ Layout panel not found!');
+                }
+            });
+        } else {
+            console.warn('⚠️ Layout toggle button not found!');
+        }
     }
 
     destroy() {

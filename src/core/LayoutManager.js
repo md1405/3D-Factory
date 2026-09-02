@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import * as APP from './App';
+
 
 export class LayoutManager {
     constructor(scene, factory) {
@@ -6,10 +8,7 @@ export class LayoutManager {
         this.factory = factory;
 
         // ==================== Layout State ====================
-        // "default" means the real original factory arrangement.
-        // It is NOT the same as the Linear preset.
         this.currentLayout = 'default';
-
         this.gap = 2.0;
         this.gridSize = 1;
         this.snapEnabled = true;
@@ -20,12 +19,9 @@ export class LayoutManager {
 
         // ==================== Equipment References ====================
         this.equipmentRefs = {};
-
-        // Original transforms used by Reset To Default
         this.defaultPositions = {};
         this.defaultRotations = {};
         this.defaultScales = {};
-
         this.defaultsCaptured = false;
 
         // ==================== Animation Bookkeeping ====================
@@ -42,15 +38,18 @@ export class LayoutManager {
                     tank1: { x: -6, y: 3.5, z: 6 },
                     tank2: { x: -6, y: 3.5, z: 0 },
                     conveyor: { x: 0, y: -0.5, z: -1 },
-                    bottleGroup: { x: 0, y: -0.5, z: -1 }
+                    bottleGroup: { x: 0, y: -0.5, z: -1 },
+                    pipe: { x: 0, y: 3, z: 3 },
+                    medicStaff: { x: 1, y: 0, z: -4 }   
                 },
 
                 rotations: {
                     conveyor: { x: 0, y: Math.PI / 2, z: 0 },
-                    bottleGroup: { x: 0, y: Math.PI / 2, z: 0 }
-                },
-
-                pipeRotationOffset: 0
+                    bottleGroup: { x: 0, y: Math.PI / 2, z: 0 },
+                    pipe: { x: Math.PI / 2, y: 0, z: 0 },
+                    medicStaff: { x: 0, y: Math.PI / 2, z: 0 }
+                   
+                }
             },
 
             'l-shape': {
@@ -61,15 +60,17 @@ export class LayoutManager {
                     tank1: { x: -6, y: 3.5, z: 6 },
                     tank2: { x: 0, y: 3.5, z: 6 },
                     conveyor: { x: 4, y: -0.5, z: -1 },
-                    bottleGroup: { x: 4, y: -0.5, z: -1 }
+                    bottleGroup: { x: 4, y: -0.5, z: -1 },
+                    pipe: { x: -3, y: 3, z: 6 },
+                    medicStaff: { x: 5, y: 0, z: -4 }
                 },
 
                 rotations: {
                     conveyor: { x: 0, y: Math.PI / 2, z: 0 },
-                    bottleGroup: { x: 0, y: Math.PI / 2, z: 0 }
-                },
-
-                pipeRotationOffset: Math.PI / 2
+                    bottleGroup: { x: 0, y: Math.PI / 2, z: 0 },
+                    pipe: { x: 0, y:0 , z:  Math.PI / 2 },
+                    medicStaff: { x: 0, y: Math.PI / 2 , z: 0 }
+                }
             },
 
             'u-shape': {
@@ -80,15 +81,17 @@ export class LayoutManager {
                     tank1: { x: -6, y: 3.5, z: 6 },
                     tank2: { x: 6, y: 3.5, z: 6 },
                     conveyor: { x: 0, y: -0.5, z: -4 },
-                    bottleGroup: { x: 0, y: -0.5, z: -4 }
+                    bottleGroup: { x: 0, y: -0.5, z: -4 },
+                    pipe: { x: 0, y: 3, z: 6 },
+                    medicStaff: { x: 1, y: 0, z: -7 }
                 },
 
                 rotations: {
                     conveyor: { x: 0, y: Math.PI / 2, z: 0 },
-                    bottleGroup: { x: 0, y: Math.PI / 2, z: 0 }
-                },
-
-                pipeRotationOffset: Math.PI / 2
+                    bottleGroup: { x: 0, y: Math.PI / 2, z: 0 },
+                    pipe: { x: Math.PI / 2, y: 0, z: Math.PI / 2 },
+                    medicStaff: { x: 0, y: Math.PI / 2, z: 0 }
+                }
             }
         };
 
@@ -519,8 +522,6 @@ export class LayoutManager {
 
     bindEvents() {
         // Prevent UI interaction from propagating to the 3D Raycaster/InteractionSystem.
-        // Without this, clicking a Layout button can also be interpreted as clicking
-        // an object underneath the panel (for example the Raw Milk Storage Tank).
         const panel = document.getElementById('layout-panel');
 
         if (panel) {
@@ -894,15 +895,7 @@ export class LayoutManager {
 
         /*
          * Capture the original transform.
-         *
-         * IMPORTANT:
-         * Only capture it if we do not already have
-         * a default for this equipment.
-         *
-         * This prevents a later registration from
-         * accidentally replacing the real default.
          */
-
         if (
             (captureAsDefault ||
                 !this.defaultPositions[id]) &&
@@ -930,13 +923,6 @@ export class LayoutManager {
         );
     }
 
-    /**
-     * Explicitly capture the current transforms
-     * as the TRUE factory default.
-     *
-     * Use this after ALL factory equipment has
-     * reached the actual original positions.
-     */
     captureDefaultLayout() {
         Object
             .entries(this.equipmentRefs)
@@ -1051,16 +1037,6 @@ export class LayoutManager {
 
     async applyCurrentLayout() {
 
-        /*
-         * Default is a real state.
-         *
-         * It is NOT one of the preset layouts.
-         *
-         * Therefore we do nothing here.
-         * resetToDefault() itself restores the
-         * real original transforms.
-         */
-
         if (this.currentLayout === 'default') {
             return;
         }
@@ -1097,15 +1073,6 @@ export class LayoutManager {
                     return;
                 }
 
-                /*
-                 * Apply gap factor.
-                 *
-                 * NOTE:
-                 * This is still the original project's
-                 * gap behaviour: coordinates are scaled
-                 * by gap / 2.
-                 */
-
                 let finalX =
                     pos.x *
                     (this.gap / 2);
@@ -1113,8 +1080,6 @@ export class LayoutManager {
                 let finalZ =
                     pos.z *
                     (this.gap / 2);
-
-                // ==================== Snap ====================
 
                 if (this.snapEnabled) {
 
@@ -1183,13 +1148,6 @@ export class LayoutManager {
                 );
         }
 
-        /*
-         * Wait for both position and rotation animations.
-         *
-         * This fixes the old situation where Pipe was updated
-         * before tanks had actually reached their destinations.
-         */
-
         await Promise.all([
             ...positionAnimations,
             ...rotationAnimations
@@ -1231,13 +1189,6 @@ export class LayoutManager {
                 `${value.toFixed(1)}m`;
         }
 
-        /*
-         * If we are in Default state,
-         * do not move equipment.
-         *
-         * Gap is meaningful only for presets.
-         */
-
         if (
             this.currentLayout !== 'default'
         ) {
@@ -1264,7 +1215,6 @@ export class LayoutManager {
             return Promise.resolve();
         }
 
-        // Cancel previous animation.
         const previousFrame =
             this.positionAnimationFrames.get(
                 mesh
@@ -1304,7 +1254,6 @@ export class LayoutManager {
                                 1
                             );
 
-                        // Ease-in-out cubic
                         const eased =
                             progress < 0.5
                                 ? 4 *
@@ -1382,7 +1331,6 @@ export class LayoutManager {
             return Promise.resolve();
         }
 
-        // Cancel previous rotation animation.
         const previousFrame =
             this.rotationAnimationFrames.get(
                 mesh
@@ -1422,7 +1370,6 @@ export class LayoutManager {
                                 1
                             );
 
-                        // Ease-in-out cubic
                         const eased =
                             progress < 0.5
                                 ? 4 *
@@ -1552,18 +1499,28 @@ export class LayoutManager {
                 direction.z
             );
 
-        // Rotation مخصوص Layout فعلی
+        // Get pipe rotation from current layout
         const layout =
             this.layouts[this.currentLayout];
+        
+        const pipeRotation = layout?.rotations?.pipe;
 
-        const pipeRotationOffset =
-            layout?.pipeRotationOffset ?? 0;
-
-        pipe.rotation.set(
-            Math.PI / 2,
-            angleY + pipeRotationOffset,
-            0
-        );
+        // If pipe rotation is defined in layout, use it
+        // Otherwise, calculate from tank positions
+        if (pipeRotation) {
+            pipe.rotation.set(
+                pipeRotation.x,
+                pipeRotation.y,
+                pipeRotation.z
+            );
+        } else {
+            // Fallback to calculated rotation
+            pipe.rotation.set(
+                Math.PI / 2,
+                angleY,
+                0
+            );
+        }
 
         const defaultPipeLength = 6;
 
@@ -1575,11 +1532,7 @@ export class LayoutManager {
 
         console.log(
             `🔧 Pipe: distance=${distance.toFixed(1)}m, ` +
-            `angleY=${(
-                (angleY + pipeRotationOffset) *
-                180 /
-                Math.PI
-            ).toFixed(1)}°`
+            `angleY=${(angleY * 180 / Math.PI).toFixed(1)}°`
         );
     }
 
@@ -1654,7 +1607,6 @@ export class LayoutManager {
                 );
         }
 
-        // Snap only X and Z.
         if (this.snapEnabled) {
 
             targetPosition.x =
@@ -1678,7 +1630,6 @@ export class LayoutManager {
                 targetPosition
             );
 
-        // Tank movement affects Pipe.
         if (
             equipId === 'tank1' ||
             equipId === 'tank2'
@@ -1691,7 +1642,6 @@ export class LayoutManager {
             return;
         }
 
-        // Conveyor movement affects Conveyor system.
         if (
             equipId === 'conveyor'
         ) {
@@ -1707,14 +1657,6 @@ export class LayoutManager {
     // =========================================================
 
     async resetToDefault() {
-
-        /*
-         * IMPORTANT:
-         *
-         * Default is the real original factory layout.
-         *
-         * It is NOT the Linear preset.
-         */
 
         this.currentLayout =
             'default';
@@ -1772,7 +1714,6 @@ export class LayoutManager {
                 const defaultScale =
                     this.defaultScales[id];
 
-                // Restore Position
                 if (defaultPosition) {
 
                     animations.push(
@@ -1783,7 +1724,6 @@ export class LayoutManager {
                     );
                 }
 
-                // Restore Rotation
                 if (defaultRotation) {
 
                     animations.push(
@@ -1794,34 +1734,17 @@ export class LayoutManager {
                     );
                 }
 
-                // Restore Scale
                 if (defaultScale) {
 
-                    /*
-                     * Scale is restored immediately.
-                     * This manager does not animate scale.
-                     */
                     mesh.scale.copy(
                         defaultScale
                     );
                 }
             });
 
-        /*
-         * Wait until all position and rotation
-         * animations are finished.
-         */
         await Promise.all(
             animations
         );
-
-        /*
-         * Do NOT call updatePipe() here.
-         *
-         * Reset should restore the pipe's exact
-         * original transform instead of recalculating
-         * it from the current tank positions.
-         */
 
         this.updateConveyor();
 
